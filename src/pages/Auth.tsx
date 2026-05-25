@@ -55,8 +55,11 @@ const Auth = () => {
   const [mode, setMode] = useState<"login" | "signup">("login");
   const [submitting, setSubmitting] = useState(false);
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
   const { level, checks } = evaluatePassword(password);
+  const confirmMismatch = mode === "signup" && confirmPassword.length > 0 && confirmPassword !== password;
 
   const redirectAfterAuth = async (userId: string) => {
     const { data } = await supabase
@@ -84,6 +87,10 @@ const Auth = () => {
     });
     if (!parsed.success) {
       toast.error(parsed.error.issues[0].message);
+      return;
+    }
+    if (mode === "signup" && parsed.data.password !== confirmPassword) {
+      toast.error("Confirm password tidak sepadan");
       return;
     }
 
@@ -182,7 +189,47 @@ const Auth = () => {
               </div>
             )}
           </div>
-          <Button type="submit" size="lg" className="w-full" disabled={submitting}>
+          {mode === "signup" && (
+            <div>
+              <Label htmlFor="confirm-password">Sahkan Password</Label>
+              <div className="relative mt-1.5">
+                <Input
+                  id="confirm-password"
+                  name="confirm-password"
+                  type={showConfirm ? "text" : "password"}
+                  required
+                  minLength={6}
+                  className={`pr-10 ${confirmMismatch ? "border-rose-500 focus-visible:ring-rose-500" : ""}`}
+                  autoComplete="new-password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirm((v) => !v)}
+                  aria-label={showConfirm ? "Sembunyi password" : "Tunjuk password"}
+                  className="absolute inset-y-0 right-0 flex w-10 items-center justify-center text-muted-foreground hover:text-foreground"
+                >
+                  {showConfirm ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
+              {confirmMismatch ? (
+                <p className="mt-1.5 flex items-center gap-1 text-xs text-rose-600">
+                  <X className="h-3 w-3" /> Password tidak sepadan
+                </p>
+              ) : confirmPassword.length > 0 ? (
+                <p className="mt-1.5 flex items-center gap-1 text-xs text-emerald-600">
+                  <Check className="h-3 w-3" /> Password sepadan
+                </p>
+              ) : null}
+            </div>
+          )}
+          <Button
+            type="submit"
+            size="lg"
+            className="w-full"
+            disabled={submitting || confirmMismatch}
+          >
             <LogIn className="h-4 w-4" />
             {submitting ? "Memproses..." : mode === "login" ? "Log Masuk" : "Daftar"}
           </Button>
