@@ -150,7 +150,7 @@ const CourseDetail = () => {
               <h1 className="mt-4 font-display text-3xl font-extrabold text-white md:text-4xl lg:text-5xl">
                 {course.title}
               </h1>
-              <p className="mt-4 max-w-2xl whitespace-pre-line text-white/80">{course.short_desc}</p>
+              
 
               <div className="mt-6 flex flex-wrap gap-x-8 gap-y-3 text-sm text-white/85">
                 <span className="inline-flex items-center gap-2"><Clock className="h-4 w-4 text-accent" /> {course.duration}</span>
@@ -175,6 +175,12 @@ const CourseDetail = () => {
       <section className="container py-14">
         <div className="grid gap-10 lg:grid-cols-[1fr_380px]">
           <div className="space-y-10">
+            <div>
+              <h2 className="font-display text-2xl font-bold text-foreground">Tentang Kursus</h2>
+              <p className="mt-4 whitespace-pre-line text-sm leading-relaxed text-foreground/85">
+                {course.short_desc}
+              </p>
+            </div>
             <div>
               <h2 className="font-display text-2xl font-bold text-foreground">Silibus & Kandungan</h2>
               <ul className="mt-4 space-y-3">
