@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { useCourseBySlug, type SlotRow } from "@/hooks/useCatalog";
@@ -30,6 +31,7 @@ const CourseDetail = () => {
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState<string | null>(null);
   const [form, setForm] = useState({ customer_name: "", email: "", phone: "", company: "", num_pax: 1, notes: "" });
+  const [isParticipant, setIsParticipant] = useState(true);
 
   const course = data?.course;
   const slots = data?.slots ?? [];
@@ -267,6 +269,13 @@ const CourseDetail = () => {
                 <div>
                   <Label>Nama penuh *</Label>
                   <Input required className="mt-1.5" value={form.customer_name} onChange={(e) => setForm({ ...form, customer_name: e.target.value })} />
+                  <label className="mt-2 flex cursor-pointer items-center gap-2 text-xs text-muted-foreground">
+                    <Checkbox
+                      checked={isParticipant}
+                      onCheckedChange={(c) => setIsParticipant(c === true)}
+                    />
+                    <span>Nama ini juga adalah peserta</span>
+                  </label>
                 </div>
                 <div>
                   <Label>Bil. peserta *</Label>
