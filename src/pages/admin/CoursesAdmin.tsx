@@ -514,6 +514,8 @@ function SlotsManager({ course, onClose }: { course: Course; onClose: () => void
       toast.success("Slot ditambah");
       setNewSlot({ date_label: "", time_label: "", seats_total: 20 });
       setDateRange(undefined);
+      setStartTime("");
+      setEndTime("");
       qc.invalidateQueries({ queryKey: ["admin-slots", course.id] });
     }
   };
@@ -599,7 +601,27 @@ function SlotsManager({ course, onClose }: { course: Course; onClose: () => void
                   />
                 </PopoverContent>
               </Popover>
-              <Input placeholder="cth: 9:00 pagi - 5:00 petang" value={newSlot.time_label} onChange={(e) => setNewSlot({ ...newSlot, time_label: e.target.value })} />
+              <div className="flex items-center gap-1">
+                <Input
+                  type="time"
+                  value={startTime}
+                  onChange={(e) => {
+                    const v = e.target.value;
+                    setStartTime(v);
+                    setNewSlot({ ...newSlot, time_label: buildTimeLabel(v, endTime) });
+                  }}
+                />
+                <span className="text-muted-foreground">-</span>
+                <Input
+                  type="time"
+                  value={endTime}
+                  onChange={(e) => {
+                    const v = e.target.value;
+                    setEndTime(v);
+                    setNewSlot({ ...newSlot, time_label: buildTimeLabel(startTime, v) });
+                  }}
+                />
+              </div>
               <Input type="number" min={1} placeholder="Tempat" value={newSlot.seats_total} onChange={(e) => setNewSlot({ ...newSlot, seats_total: Number(e.target.value) })} />
             </div>
             <Button onClick={addSlot} disabled={adding} variant="accent" size="sm" className="mt-3">
