@@ -13,10 +13,41 @@ const schema = z.object({
   password: z.string().min(6, "Password sekurang-kurangnya 6 aksara").max(72),
 });
 
+type StrengthLevel = 0 | 1 | 2 | 3 | 4;
+const strengthMeta: Record<StrengthLevel, { label: string; color: string; text: string }> = {
+  0: { label: "Terlalu lemah", color: "bg-rose-500", text: "text-rose-600" },
+  1: { label: "Lemah", color: "bg-rose-500", text: "text-rose-600" },
+  2: { label: "Sederhana", color: "bg-amber-500", text: "text-amber-600" },
+  3: { label: "Kuat", color: "bg-emerald-500", text: "text-emerald-600" },
+  4: { label: "Sangat Kuat", color: "bg-emerald-600", text: "text-emerald-700" },
+};
+
+const evaluatePassword = (pw: string) => {
+  const checks = {
+    length8: pw.length >= 8,
+    length12: pw.length >= 12,
+    lower: /[a-z]/.test(pw),
+    upper: /[A-Z]/.test(pw),
+    number: /\d/.test(pw),
+    symbol: /[^A-Za-z0-9]/.test(pw),
+  };
+  let score = 0;
+  if (checks.length8) score++;
+  if (checks.length12) score++;
+  if (checks.lower && checks.upper) score++;
+  if (checks.number) score++;
+  if (checks.symbol) score++;
+  if (pw.length < 6) score = 0;
+  const level = Math.min(4, score) as StrengthLevel;
+  return { level, checks };
+};
+
 const Auth = () => {
   const navigate = useNavigate();
   const [mode, setMode] = useState<"login" | "signup">("login");
   const [submitting, setSubmitting] = useState(false);
+  const [password, setPassword] = useState("");
+  const { level, checks } = evaluatePassword(password);
 
   const redirectAfterAuth = async (userId: string) => {
     const { data } = await supabase
@@ -102,7 +133,35 @@ const Auth = () => {
               minLength={6}
               className="mt-1.5"
               autoComplete={mode === "login" ? "current-password" : "new-password"}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
             />
+            {mode === "signup" && password.length > 0 && (
+              <div className="mt-2 space-y-2">
+                <div className="flex gap-1">
+                  {[0, 1, 2, 3].map((i) => (
+                    <div
+                      key={i}
+                      className={`h-1.5 flex-1 rounded-full transition-colors ${
+                        i < level ? strengthMeta[level].color : "bg-muted"
+                      }`}
+                    />
+                  ))}
+                </div>
+                <div className="flex items-center justify-between text-xs">
+                  <span className={`font-medium ${strengthMeta[level].text}`}>
+                    {strengthMeta[level].label}
+                  </span>
+                  <span className="text-muted-foreground">{password.length} aksara</span>
+                </div>
+                <ul className="grid grid-cols-2 gap-x-3 gap-y-1 text-[11px] text-muted-foreground">
+                  <Hint ok={checks.length8} text="8+ aksara" />
+                  <Hint ok={checks.upper && checks.lower} text="Huruf besar & kecil" />
+                  <Hint ok={checks.number} text="Nombor" />
+                  <Hint ok={checks.symbol} text="Simbol (!@#...)" />
+                </ul>
+              </div>
+            )}
           </div>
           <Button type="submit" size="lg" className="w-full" disabled={submitting}>
             <LogIn className="h-4 w-4" />
