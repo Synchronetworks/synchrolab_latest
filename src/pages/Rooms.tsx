@@ -27,6 +27,8 @@ const Rooms = () => {
   const [selectedAddons, setSelectedAddons] = useState<Record<string, number>>({}); // id -> qty
   const [submitting, setSubmitting] = useState(false);
   const [refNo, setRefNo] = useState<string | null>(null);
+  const [lockedEmail, setLockedEmail] = useState(false);
+  const [lockedPhone, setLockedPhone] = useState(false);
 
   useEffect(() => {
     if (!form.room_id && rooms.length > 0) setForm((f) => ({ ...f, room_id: rooms[0].id }));
@@ -42,12 +44,16 @@ const Rooms = () => {
         .select("full_name, phone")
         .eq("id", session.user.id)
         .maybeSingle();
+      const emailVal = session.user.email || "";
+      const phoneVal = profile?.phone || "";
       setForm((f) => ({
         ...f,
         customer_name: f.customer_name || profile?.full_name || "",
-        email: f.email || session.user.email || "",
-        phone: f.phone || profile?.phone || "",
+        email: f.email || emailVal,
+        phone: f.phone || phoneVal,
       }));
+      if (emailVal) setLockedEmail(true);
+      if (phoneVal) setLockedPhone(true);
     })();
   }, []);
 
@@ -264,11 +270,13 @@ const Rooms = () => {
             </div>
             <div>
               <Label>E-mel</Label>
-              <Input required type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} className="mt-1.5" />
+              <Input required type="email" value={form.email} disabled={lockedEmail} readOnly={lockedEmail} onChange={(e) => setForm({ ...form, email: e.target.value })} className="mt-1.5" />
+              {lockedEmail && <p className="mt-1 text-xs text-muted-foreground">Kemas kini di Profil Saya</p>}
             </div>
             <div>
               <Label>Telefon</Label>
-              <Input required value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} className="mt-1.5" />
+              <Input required value={form.phone} disabled={lockedPhone} readOnly={lockedPhone} onChange={(e) => setForm({ ...form, phone: e.target.value })} className="mt-1.5" />
+              {lockedPhone && <p className="mt-1 text-xs text-muted-foreground">Kemas kini di Profil Saya</p>}
             </div>
             <div className="md:col-span-2">
               <Label>Nota tambahan</Label>

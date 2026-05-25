@@ -33,6 +33,8 @@ const CourseDetail = () => {
   const [form, setForm] = useState({ customer_name: "", customer_age: "", email: "", phone: "", company: "", num_pax: 1, notes: "" });
   const [isParticipant, setIsParticipant] = useState(true);
   const [participants, setParticipants] = useState<{ name: string; age: string }[]>([]);
+  const [lockedEmail, setLockedEmail] = useState(false);
+  const [lockedPhone, setLockedPhone] = useState(false);
 
   const participantsCount = isParticipant ? form.num_pax : Math.max(0, form.num_pax);
 
@@ -55,12 +57,16 @@ const CourseDetail = () => {
         .select("full_name, phone")
         .eq("id", session.user.id)
         .maybeSingle();
+      const emailVal = session.user.email || "";
+      const phoneVal = profile?.phone || "";
       setForm((f) => ({
         ...f,
         customer_name: f.customer_name || profile?.full_name || "",
-        email: f.email || session.user.email || "",
-        phone: f.phone || profile?.phone || "",
+        email: f.email || emailVal,
+        phone: f.phone || phoneVal,
       }));
+      if (emailVal) setLockedEmail(true);
+      if (phoneVal) setLockedPhone(true);
     })();
   }, []);
 
@@ -397,11 +403,13 @@ const CourseDetail = () => {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <Label>E-mel *</Label>
-                  <Input required type="email" className="mt-1.5" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
+                  <Input required type="email" className="mt-1.5" value={form.email} disabled={lockedEmail} readOnly={lockedEmail} onChange={(e) => setForm({ ...form, email: e.target.value })} />
+                  {lockedEmail && <p className="mt-1 text-xs text-muted-foreground">Kemas kini di Profil Saya</p>}
                 </div>
                 <div>
                   <Label>Telefon *</Label>
-                  <Input required className="mt-1.5" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
+                  <Input required className="mt-1.5" value={form.phone} disabled={lockedPhone} readOnly={lockedPhone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
+                  {lockedPhone && <p className="mt-1 text-xs text-muted-foreground">Kemas kini di Profil Saya</p>}
                 </div>
               </div>
               <div>
