@@ -47,11 +47,11 @@ export const Footer = () => {
               </li>
               <li className="flex items-center gap-2">
                 <Mail className="h-4 w-4 shrink-0 text-accent" />
-                <a href="mailto:booking@synchrolab.my" className="hover:text-accent">booking@synchrolab.my</a>
+                <a href="mailto:salam@synchronet.com.my" className="hover:text-accent">salam@synchronet.com.my</a>
               </li>
               <li className="flex items-center gap-2">
                 <Phone className="h-4 w-4 shrink-0 text-accent" />
-                <a href="tel:+60312345678" className="hover:text-accent">+603-1234 5678</a>
+                <a href="tel:+60105847675" className="hover:text-accent">+60 10-584 7675</a>
               </li>
             </ul>
           </div>
