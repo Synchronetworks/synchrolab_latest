@@ -58,8 +58,34 @@ const Auth = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+  const [forgotOpen, setForgotOpen] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState("");
+  const [sendingReset, setSendingReset] = useState(false);
   const { level, checks } = evaluatePassword(password);
   const confirmMismatch = mode === "signup" && confirmPassword.length > 0 && confirmPassword !== password;
+
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const email = forgotEmail.trim();
+    if (!email || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+      toast.error("Sila masukkan emel yang sah");
+      return;
+    }
+    setSendingReset(true);
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    setSendingReset(false);
+    if (error) {
+      toast.error("Gagal hantar emel", { description: error.message });
+      return;
+    }
+    toast.success("Pautan tetap semula password telah dihantar", {
+      description: "Sila semak peti masuk emel anda.",
+    });
+    setForgotOpen(false);
+    setForgotEmail("");
+  };
 
   const redirectAfterAuth = async (userId: string) => {
     const { data } = await supabase
@@ -235,6 +261,16 @@ const Auth = () => {
           </Button>
         </form>
 
+        {mode === "login" && (
+          <button
+            type="button"
+            onClick={() => setForgotOpen(true)}
+            className="mt-3 w-full text-center text-sm text-accent hover:underline"
+          >
+            Lupa password?
+          </button>
+        )}
+
         <button
           type="button"
           onClick={() => setMode(mode === "login" ? "signup" : "login")}
@@ -243,6 +279,39 @@ const Auth = () => {
           {mode === "login" ? "Belum ada akaun? Daftar" : "Sudah ada akaun? Log masuk"}
         </button>
       </div>
+
+      {forgotOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => setForgotOpen(false)}>
+          <div className="w-full max-w-md rounded-2xl border border-border bg-card p-6 shadow-elegant" onClick={(e) => e.stopPropagation()}>
+            <h2 className="font-display text-xl font-bold">Lupa Password</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Masukkan emel akaun anda. Kami akan hantar pautan untuk tetap semula password.
+            </p>
+            <form onSubmit={handleForgotPassword} className="mt-4 space-y-3">
+              <div>
+                <Label htmlFor="forgot-email">Emel</Label>
+                <Input
+                  id="forgot-email"
+                  type="email"
+                  required
+                  className="mt-1.5"
+                  value={forgotEmail}
+                  onChange={(e) => setForgotEmail(e.target.value)}
+                  autoFocus
+                />
+              </div>
+              <div className="flex gap-2">
+                <Button type="button" variant="outline" className="flex-1" onClick={() => setForgotOpen(false)}>
+                  Batal
+                </Button>
+                <Button type="submit" className="flex-1" disabled={sendingReset}>
+                  {sendingReset ? "Menghantar..." : "Hantar Pautan"}
+                </Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

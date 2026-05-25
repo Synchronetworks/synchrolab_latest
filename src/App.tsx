@@ -28,6 +28,7 @@ import AccountAdmin from "./pages/admin/AccountAdmin.tsx";
 import PaymentsAdmin from "./pages/admin/PaymentsAdmin.tsx";
 import PromoCodesAdmin from "./pages/admin/PromoCodesAdmin.tsx";
 import PaymentReturn from "./pages/PaymentReturn.tsx";
+import ResetPassword from "./pages/ResetPassword.tsx";
 import { Navigate } from "react-router-dom";
 
 const queryClient = new QueryClient();
@@ -50,6 +51,7 @@ const App = () => (
             <Route path="/hubungi" element={<Contact />} />
           </Route>
           <Route path="/auth" element={<Auth />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           <Route element={<Layout />}>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/bayaran/selesai" element={<PaymentReturn />} />
