@@ -61,7 +61,7 @@ Deno.serve(async (req) => {
     const sig = fields.x_signature ?? "";
 
     const valid = await verifyXSignature(fields, sig, xSignatureKey);
-    if (!valid) return json({ valid: false, error: "Invalid signature" }, 403);
+    if (!valid) return json({ valid: false, error: "Invalid signature" });
 
     const paid = (fields.paid ?? "false").toLowerCase() === "true";
     const billId = fields.id ?? null;
@@ -78,11 +78,11 @@ Deno.serve(async (req) => {
     const billData = await billRes.json().catch(() => ({}));
     if (!billRes.ok) {
       console.error("Billplz bill lookup error", billData);
-      return json({ valid: false, error: "Gagal menyemak bil Billplz" }, 502);
+      return json({ valid: false, error: "Gagal menyemak bil Billplz" });
     }
 
     const ref = String(billData.reference_1 ?? "").trim();
-    if (!ref) return json({ valid: false, error: "Missing ref" }, 400);
+    if (!ref) return json({ valid: false, error: "Missing ref" });
 
     // Fallback: if webhook hasn't fired yet, update the booking now since
     // signature is verified. Idempotent (safe to call repeatedly).
@@ -102,7 +102,7 @@ Deno.serve(async (req) => {
       .maybeSingle();
 
     if (error) return json({ error: error.message }, 500);
-    if (!data) return json({ valid: false, error: "Not found" }, 404);
+    if (!data) return json({ valid: false, error: "Not found" });
 
     return json({
       valid: true,
