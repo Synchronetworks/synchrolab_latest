@@ -1,12 +1,18 @@
 import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Plus, Pencil, Trash2, Loader2, Upload, X, CalendarPlus } from "lucide-react";
+import { Plus, Pencil, Trash2, Loader2, Upload, X, CalendarPlus, CalendarIcon } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { format } from "date-fns";
+import { ms } from "date-fns/locale";
+import type { DateRange } from "react-day-picker";
+import { cn } from "@/lib/utils";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
 } from "@/components/ui/dialog";
@@ -437,6 +443,25 @@ function SlotsManager({ course, onClose }: { course: Course; onClose: () => void
   const qc = useQueryClient();
   const [adding, setAdding] = useState(false);
   const [newSlot, setNewSlot] = useState({ date_label: "", time_label: "", seats_total: 20 });
+  const [dateRange, setDateRange] = useState<DateRange | undefined>();
+
+  const formatDateRange = (range: DateRange | undefined): string => {
+    if (!range?.from) return "";
+    const from = range.from;
+    const to = range.to;
+    if (!to || from.getTime() === to.getTime()) {
+      return format(from, "d MMMM yyyy", { locale: ms });
+    }
+    const sameMonth = from.getMonth() === to.getMonth() && from.getFullYear() === to.getFullYear();
+    const sameYear = from.getFullYear() === to.getFullYear();
+    if (sameMonth) {
+      return `${format(from, "d", { locale: ms })}-${format(to, "d MMMM yyyy", { locale: ms })}`;
+    }
+    if (sameYear) {
+      return `${format(from, "d MMM", { locale: ms })} - ${format(to, "d MMM yyyy", { locale: ms })}`;
+    }
+    return `${format(from, "d MMM yyyy", { locale: ms })} - ${format(to, "d MMM yyyy", { locale: ms })}`;
+  };
 
   const { data: slots = [], isLoading } = useQuery({
     queryKey: ["admin-slots", course.id],
@@ -469,6 +494,7 @@ function SlotsManager({ course, onClose }: { course: Course; onClose: () => void
     else {
       toast.success("Slot ditambah");
       setNewSlot({ date_label: "", time_label: "", seats_total: 20 });
+      setDateRange(undefined);
       qc.invalidateQueries({ queryKey: ["admin-slots", course.id] });
     }
   };
@@ -528,7 +554,32 @@ function SlotsManager({ course, onClose }: { course: Course; onClose: () => void
           <div className="rounded-lg border border-dashed border-border p-4">
             <p className="mb-3 text-sm font-medium">Tambah slot baru</p>
             <div className="grid grid-cols-3 gap-2">
-              <Input placeholder="cth: 15-16 Mei 2026" value={newSlot.date_label} onChange={(e) => setNewSlot({ ...newSlot, date_label: e.target.value })} />
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className={cn("justify-start text-left font-normal", !newSlot.date_label && "text-muted-foreground")}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {newSlot.date_label || "Pilih tarikh"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="range"
+                    selected={dateRange}
+                    onSelect={(range) => {
+                      setDateRange(range);
+                      setNewSlot({ ...newSlot, date_label: formatDateRange(range) });
+                    }}
+                    numberOfMonths={1}
+                    locale={ms}
+                    initialFocus
+                    className={cn("p-3 pointer-events-auto")}
+                  />
+                </PopoverContent>
+              </Popover>
               <Input placeholder="cth: 9:00 pagi - 5:00 petang" value={newSlot.time_label} onChange={(e) => setNewSlot({ ...newSlot, time_label: e.target.value })} />
               <Input type="number" min={1} placeholder="Tempat" value={newSlot.seats_total} onChange={(e) => setNewSlot({ ...newSlot, seats_total: Number(e.target.value) })} />
             </div>
