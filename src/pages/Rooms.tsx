@@ -29,6 +29,9 @@ const Rooms = () => {
   const [refNo, setRefNo] = useState<string | null>(null);
   const [lockedEmail, setLockedEmail] = useState(false);
   const [lockedPhone, setLockedPhone] = useState(false);
+  const [promoInput, setPromoInput] = useState("");
+  const [promo, setPromo] = useState<{ code: string; discount: number } | null>(null);
+  const [validatingPromo, setValidatingPromo] = useState(false);
 
   useEffect(() => {
     if (!form.room_id && rooms.length > 0) setForm((f) => ({ ...f, room_id: rooms[0].id }));
@@ -70,6 +73,37 @@ const Rooms = () => {
   }, [addons, selectedAddons]);
 
   const total = baseTotal + addonsTotal;
+  const finalTotal = Math.max(0, total - (promo?.discount ?? 0));
+
+  useEffect(() => {
+    if (promo) setPromo(null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [total]);
+
+  const applyPromo = async () => {
+    const code = promoInput.trim();
+    if (!code) return;
+    if (!form.email) {
+      toast.error("Sila isi e-mel dahulu");
+      return;
+    }
+    setValidatingPromo(true);
+    const { data, error } = await supabase.rpc("validate_promo_code", {
+      _code: code,
+      _email: form.email,
+      _subtotal: total,
+      _booking_type: "room",
+    });
+    setValidatingPromo(false);
+    const row = Array.isArray(data) ? data[0] : data;
+    if (error || !row?.valid) {
+      setPromo(null);
+      toast.error(row?.message || error?.message || "Kod promo tidak sah");
+      return;
+    }
+    setPromo({ code: row.code, discount: Number(row.discount) });
+    toast.success(`Diskaun RM${Number(row.discount).toLocaleString()} digunakan`);
+  };
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -90,6 +124,7 @@ const Rooms = () => {
       _booking_date_from: parsed.data.date,
       _booking_date_to: parsed.data.date,
       _notes: buildNotes(),
+      _promo_code: promo?.code ?? null,
     });
     if (error || !ref) {
       setSubmitting(false);
@@ -222,8 +257,8 @@ const Rooms = () => {
             </div>
             <div className="flex items-end">
               <div className="w-full rounded-lg border border-border bg-secondary/40 px-4 py-2.5">
-                <p className="text-xs text-muted-foreground">Anggaran jumlah {addonsTotal > 0 && <span className="text-foreground/60">(termasuk add-on RM{addonsTotal.toFixed(2)})</span>}</p>
-                <p className="font-display text-lg font-bold text-primary">RM{total.toLocaleString()}</p>
+                <p className="text-xs text-muted-foreground">Anggaran jumlah {addonsTotal > 0 && <span className="text-foreground/60">(termasuk add-on RM{addonsTotal.toFixed(2)})</span>}{promo && <span className="text-success"> • diskaun −RM{promo.discount.toLocaleString()}</span>}</p>
+                <p className="font-display text-lg font-bold text-primary">RM{finalTotal.toLocaleString()}</p>
               </div>
             </div>
 
@@ -281,6 +316,41 @@ const Rooms = () => {
             <div className="md:col-span-2">
               <Label>Nota tambahan</Label>
               <Textarea rows={3} value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} className="mt-1.5" placeholder="Cth: keperluan khas lain, susunan kerusi..." />
+            </div>
+            <div className="md:col-span-2 space-y-2 rounded-lg border border-border bg-secondary/40 px-4 py-3">
+              <div>
+                <Label className="text-xs">Kod Promo (pilihan)</Label>
+                <div className="mt-1.5 flex gap-2">
+                  <Input
+                    value={promoInput}
+                    onChange={(e) => setPromoInput(e.target.value.toUpperCase())}
+                    placeholder="cth: PROMO10"
+                    className="font-mono uppercase"
+                    disabled={!!promo}
+                  />
+                  {promo ? (
+                    <Button type="button" variant="outline" onClick={() => { setPromo(null); setPromoInput(""); }}>Buang</Button>
+                  ) : (
+                    <Button type="button" variant="outline" onClick={applyPromo} disabled={validatingPromo || !promoInput}>
+                      {validatingPromo ? "Menyemak..." : "Guna"}
+                    </Button>
+                  )}
+                </div>
+              </div>
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">Subjumlah</span>
+                <span>RM{total.toLocaleString()}</span>
+              </div>
+              {promo && (
+                <div className="flex items-center justify-between text-sm text-success">
+                  <span>Diskaun ({promo.code})</span>
+                  <span>− RM{promo.discount.toLocaleString()}</span>
+                </div>
+              )}
+              <div className="flex items-center justify-between border-t border-border pt-2">
+                <span className="text-sm text-muted-foreground">Jumlah perlu bayar</span>
+                <span className="font-display text-xl font-bold text-primary">RM{finalTotal.toLocaleString()}</span>
+              </div>
             </div>
             <Button type="submit" variant="accent" size="lg" className="md:col-span-2" disabled={submitting}>
               {submitting ? "Memproses..." : "Hantar Permohonan Tempahan"}

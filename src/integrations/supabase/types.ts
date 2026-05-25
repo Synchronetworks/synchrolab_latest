@@ -24,6 +24,7 @@ export type Database = {
           course_id: string | null
           created_at: string
           customer_name: string
+          discount_amount: number
           email: string
           id: string
           notes: string | null
@@ -31,9 +32,11 @@ export type Database = {
           payment_status: Database["public"]["Enums"]["payment_status"]
           payment_url: string | null
           phone: string
+          promo_code: string | null
           ref_no: string
           room_id: string | null
           slot_id: string | null
+          subtotal_amount: number
           total_amount: number
           type: Database["public"]["Enums"]["booking_type"]
           updated_at: string
@@ -48,6 +51,7 @@ export type Database = {
           course_id?: string | null
           created_at?: string
           customer_name: string
+          discount_amount?: number
           email: string
           id?: string
           notes?: string | null
@@ -55,9 +59,11 @@ export type Database = {
           payment_status?: Database["public"]["Enums"]["payment_status"]
           payment_url?: string | null
           phone: string
+          promo_code?: string | null
           ref_no?: string
           room_id?: string | null
           slot_id?: string | null
+          subtotal_amount?: number
           total_amount?: number
           type: Database["public"]["Enums"]["booking_type"]
           updated_at?: string
@@ -72,6 +78,7 @@ export type Database = {
           course_id?: string | null
           created_at?: string
           customer_name?: string
+          discount_amount?: number
           email?: string
           id?: string
           notes?: string | null
@@ -79,9 +86,11 @@ export type Database = {
           payment_status?: Database["public"]["Enums"]["payment_status"]
           payment_url?: string | null
           phone?: string
+          promo_code?: string | null
           ref_no?: string
           room_id?: string | null
           slot_id?: string | null
+          subtotal_amount?: number
           total_amount?: number
           type?: Database["public"]["Enums"]["booking_type"]
           updated_at?: string
@@ -311,6 +320,108 @@ export type Database = {
         }
         Relationships: []
       }
+      promo_codes: {
+        Row: {
+          applies_to: Database["public"]["Enums"]["promo_applies_to"]
+          code: string
+          created_at: string
+          description: string | null
+          discount_type: Database["public"]["Enums"]["promo_discount_type"]
+          discount_value: number
+          expires_at: string | null
+          first_time_only: boolean
+          id: string
+          is_active: boolean
+          max_discount: number | null
+          max_uses: number | null
+          min_amount: number
+          starts_at: string | null
+          updated_at: string
+          used_count: number
+        }
+        Insert: {
+          applies_to?: Database["public"]["Enums"]["promo_applies_to"]
+          code: string
+          created_at?: string
+          description?: string | null
+          discount_type: Database["public"]["Enums"]["promo_discount_type"]
+          discount_value: number
+          expires_at?: string | null
+          first_time_only?: boolean
+          id?: string
+          is_active?: boolean
+          max_discount?: number | null
+          max_uses?: number | null
+          min_amount?: number
+          starts_at?: string | null
+          updated_at?: string
+          used_count?: number
+        }
+        Update: {
+          applies_to?: Database["public"]["Enums"]["promo_applies_to"]
+          code?: string
+          created_at?: string
+          description?: string | null
+          discount_type?: Database["public"]["Enums"]["promo_discount_type"]
+          discount_value?: number
+          expires_at?: string | null
+          first_time_only?: boolean
+          id?: string
+          is_active?: boolean
+          max_discount?: number | null
+          max_uses?: number | null
+          min_amount?: number
+          starts_at?: string | null
+          updated_at?: string
+          used_count?: number
+        }
+        Relationships: []
+      }
+      promo_redemptions: {
+        Row: {
+          booking_id: string | null
+          created_at: string
+          discount_amount: number
+          email: string
+          id: string
+          promo_id: string
+          user_id: string | null
+        }
+        Insert: {
+          booking_id?: string | null
+          created_at?: string
+          discount_amount?: number
+          email: string
+          id?: string
+          promo_id: string
+          user_id?: string | null
+        }
+        Update: {
+          booking_id?: string | null
+          created_at?: string
+          discount_amount?: number
+          email?: string
+          id?: string
+          promo_id?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "promo_redemptions_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "promo_redemptions_promo_id_fkey"
+            columns: ["promo_id"]
+            isOneToOne: false
+            referencedRelation: "promo_codes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       room_addons: {
         Row: {
           created_at: string
@@ -461,24 +572,44 @@ export type Database = {
         Args: { _bill_id: string; _payment_url: string; _ref_no: string }
         Returns: undefined
       }
-      create_booking: {
-        Args: {
-          _booking_date_from?: string
-          _booking_date_to?: string
-          _company?: string
-          _course_id?: string
-          _customer_name: string
-          _email: string
-          _notes?: string
-          _num_pax: number
-          _phone: string
-          _room_id?: string
-          _slot_id?: string
-          _total_amount: number
-          _type: Database["public"]["Enums"]["booking_type"]
-        }
-        Returns: string
-      }
+      create_booking:
+        | {
+            Args: {
+              _booking_date_from?: string
+              _booking_date_to?: string
+              _company?: string
+              _course_id?: string
+              _customer_name: string
+              _email: string
+              _notes?: string
+              _num_pax: number
+              _phone: string
+              _room_id?: string
+              _slot_id?: string
+              _total_amount: number
+              _type: Database["public"]["Enums"]["booking_type"]
+            }
+            Returns: string
+          }
+        | {
+            Args: {
+              _booking_date_from?: string
+              _booking_date_to?: string
+              _company?: string
+              _course_id?: string
+              _customer_name: string
+              _email: string
+              _notes?: string
+              _num_pax: number
+              _phone: string
+              _promo_code?: string
+              _room_id?: string
+              _slot_id?: string
+              _total_amount: number
+              _type: Database["public"]["Enums"]["booking_type"]
+            }
+            Returns: string
+          }
       generate_booking_ref: { Args: never; Returns: string }
       has_role: {
         Args: {
@@ -510,6 +641,21 @@ export type Database = {
         Args: { _bill_id: string; _paid: boolean; _ref_no: string }
         Returns: undefined
       }
+      validate_promo_code: {
+        Args: {
+          _booking_type: Database["public"]["Enums"]["booking_type"]
+          _code: string
+          _email: string
+          _subtotal: number
+        }
+        Returns: {
+          code: string
+          discount: number
+          message: string
+          promo_id: string
+          valid: boolean
+        }[]
+      }
     }
     Enums: {
       app_role: "admin" | "user"
@@ -517,6 +663,8 @@ export type Database = {
       booking_type: "course" | "room"
       course_status: "Ada Tempat" | "Hampir Penuh" | "Penuh"
       payment_status: "unpaid" | "paid" | "refunded"
+      promo_applies_to: "all" | "course" | "room"
+      promo_discount_type: "percent" | "fixed"
       request_status: "new" | "in_review" | "contacted" | "closed"
     }
     CompositeTypes: {
@@ -650,6 +798,8 @@ export const Constants = {
       booking_type: ["course", "room"],
       course_status: ["Ada Tempat", "Hampir Penuh", "Penuh"],
       payment_status: ["unpaid", "paid", "refunded"],
+      promo_applies_to: ["all", "course", "room"],
+      promo_discount_type: ["percent", "fixed"],
       request_status: ["new", "in_review", "contacted", "closed"],
     },
   },

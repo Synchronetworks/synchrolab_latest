@@ -35,6 +35,9 @@ const CourseDetail = () => {
   const [participants, setParticipants] = useState<{ name: string; age: string }[]>([]);
   const [lockedEmail, setLockedEmail] = useState(false);
   const [lockedPhone, setLockedPhone] = useState(false);
+  const [promoInput, setPromoInput] = useState("");
+  const [promo, setPromo] = useState<{ code: string; discount: number } | null>(null);
+  const [validatingPromo, setValidatingPromo] = useState(false);
 
   const participantsCount = isParticipant ? form.num_pax : Math.max(0, form.num_pax);
 
@@ -89,6 +92,39 @@ const CourseDetail = () => {
     const unit = course.group_price && form.num_pax >= 5 ? course.group_price : course.price;
     return unit * form.num_pax;
   }, [course, form.num_pax]);
+
+  const finalTotal = Math.max(0, total - (promo?.discount ?? 0));
+
+  // Auto-clear promo if subtotal changes
+  useEffect(() => {
+    if (promo) setPromo(null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [total]);
+
+  const applyPromo = async () => {
+    const code = promoInput.trim();
+    if (!code) return;
+    if (!form.email) {
+      toast.error("Sila isi e-mel dahulu");
+      return;
+    }
+    setValidatingPromo(true);
+    const { data, error } = await supabase.rpc("validate_promo_code", {
+      _code: code,
+      _email: form.email,
+      _subtotal: total,
+      _booking_type: "course",
+    });
+    setValidatingPromo(false);
+    const row = Array.isArray(data) ? data[0] : data;
+    if (error || !row?.valid) {
+      setPromo(null);
+      toast.error(row?.message || error?.message || "Kod promo tidak sah");
+      return;
+    }
+    setPromo({ code: row.code, discount: Number(row.discount) });
+    toast.success(`Diskaun RM${Number(row.discount).toLocaleString()} digunakan`);
+  };
 
   if (isLoading) {
     return (
@@ -148,6 +184,7 @@ const CourseDetail = () => {
       _slot_id: selectedSlot.id,
       _company: parsed.data.company || null,
       _notes: notes,
+      _promo_code: promo?.code ?? null,
     });
     if (insertErr || !refNo) {
       setSubmitting(false);
@@ -421,9 +458,42 @@ const CourseDetail = () => {
                 <Textarea rows={2} className="mt-1.5" value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} />
               </div>
 
-              <div className="flex items-center justify-between rounded-lg border border-border bg-secondary/40 px-4 py-3">
-                <span className="text-sm text-muted-foreground">Jumlah</span>
-                <span className="font-display text-xl font-bold text-primary">RM{total.toLocaleString()}</span>
+              <div className="space-y-2 rounded-lg border border-border bg-secondary/40 px-4 py-3">
+                <div>
+                  <Label className="text-xs">Kod Promo (pilihan)</Label>
+                  <div className="mt-1.5 flex gap-2">
+                    <Input
+                      value={promoInput}
+                      onChange={(e) => setPromoInput(e.target.value.toUpperCase())}
+                      placeholder="cth: PROMO10"
+                      className="font-mono uppercase"
+                      disabled={!!promo}
+                    />
+                    {promo ? (
+                      <Button type="button" variant="outline" onClick={() => { setPromo(null); setPromoInput(""); }}>
+                        Buang
+                      </Button>
+                    ) : (
+                      <Button type="button" variant="outline" onClick={applyPromo} disabled={validatingPromo || !promoInput}>
+                        {validatingPromo ? "Menyemak..." : "Guna"}
+                      </Button>
+                    )}
+                  </div>
+                </div>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">Subjumlah</span>
+                  <span>RM{total.toLocaleString()}</span>
+                </div>
+                {promo && (
+                  <div className="flex items-center justify-between text-sm text-success">
+                    <span>Diskaun ({promo.code})</span>
+                    <span>− RM{promo.discount.toLocaleString()}</span>
+                  </div>
+                )}
+                <div className="flex items-center justify-between border-t border-border pt-2">
+                  <span className="text-sm text-muted-foreground">Jumlah</span>
+                  <span className="font-display text-xl font-bold text-primary">RM{finalTotal.toLocaleString()}</span>
+                </div>
               </div>
 
               <Button type="submit" variant="accent" size="lg" className="w-full" disabled={submitting}>

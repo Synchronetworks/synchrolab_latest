@@ -26,6 +26,7 @@ import RoomsAdmin from "./pages/admin/RoomsAdmin.tsx";
 import AddonsAdmin from "./pages/admin/AddonsAdmin.tsx";
 import AccountAdmin from "./pages/admin/AccountAdmin.tsx";
 import PaymentsAdmin from "./pages/admin/PaymentsAdmin.tsx";
+import PromoCodesAdmin from "./pages/admin/PromoCodesAdmin.tsx";
 import PaymentReturn from "./pages/PaymentReturn.tsx";
 import { Navigate } from "react-router-dom";
 
@@ -65,6 +66,7 @@ const App = () => (
             <Route path="addons" element={<AddonsAdmin />} />
             <Route path="account" element={<AccountAdmin />} />
             <Route path="payments" element={<PaymentsAdmin />} />
+            <Route path="promo-codes" element={<PromoCodesAdmin />} />
           </Route>
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
