@@ -63,7 +63,23 @@ Deno.serve(async (req) => {
       return new Response("invalid signature", { status: 403, headers: corsHeaders });
     }
 
-    const ref = fields.reference_1;
+    let ref = fields.reference_1;
+    if (!ref && fields.id) {
+      const apiKey = Deno.env.get("BILLPLZ_API_KEY");
+      const mode = (Deno.env.get("BILLPLZ_MODE") ?? "sandbox").toLowerCase();
+      if (apiKey) {
+        const baseUrl =
+          mode === "production"
+            ? "https://www.billplz.com/api/v3"
+            : "https://www.billplz-sandbox.com/api/v3";
+        const billRes = await fetch(`${baseUrl}/bills/${encodeURIComponent(fields.id)}`, {
+          headers: { Authorization: `Basic ${btoa(apiKey + ":")}` },
+        });
+        const billData = await billRes.json().catch(() => ({}));
+        if (billRes.ok) ref = String(billData.reference_1 ?? "").trim();
+        else console.error("Billplz bill lookup error", billData);
+      }
+    }
     if (!ref) {
       console.warn("Webhook missing reference_1", fields);
       return new Response("missing ref", { status: 400, headers: corsHeaders });
