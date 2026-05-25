@@ -494,6 +494,7 @@ function SlotsManager({ course, onClose }: { course: Course; onClose: () => void
     else {
       toast.success("Slot ditambah");
       setNewSlot({ date_label: "", time_label: "", seats_total: 20 });
+      setDateRange(undefined);
       qc.invalidateQueries({ queryKey: ["admin-slots", course.id] });
     }
   };
@@ -553,7 +554,32 @@ function SlotsManager({ course, onClose }: { course: Course; onClose: () => void
           <div className="rounded-lg border border-dashed border-border p-4">
             <p className="mb-3 text-sm font-medium">Tambah slot baru</p>
             <div className="grid grid-cols-3 gap-2">
-              <Input placeholder="cth: 15-16 Mei 2026" value={newSlot.date_label} onChange={(e) => setNewSlot({ ...newSlot, date_label: e.target.value })} />
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className={cn("justify-start text-left font-normal", !newSlot.date_label && "text-muted-foreground")}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {newSlot.date_label || "Pilih tarikh"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="range"
+                    selected={dateRange}
+                    onSelect={(range) => {
+                      setDateRange(range);
+                      setNewSlot({ ...newSlot, date_label: formatDateRange(range) });
+                    }}
+                    numberOfMonths={1}
+                    locale={ms}
+                    initialFocus
+                    className={cn("p-3 pointer-events-auto")}
+                  />
+                </PopoverContent>
+              </Popover>
               <Input placeholder="cth: 9:00 pagi - 5:00 petang" value={newSlot.time_label} onChange={(e) => setNewSlot({ ...newSlot, time_label: e.target.value })} />
               <Input type="number" min={1} placeholder="Tempat" value={newSlot.seats_total} onChange={(e) => setNewSlot({ ...newSlot, seats_total: Number(e.target.value) })} />
             </div>
