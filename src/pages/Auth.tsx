@@ -55,6 +55,7 @@ const Auth = () => {
   const [mode, setMode] = useState<"login" | "signup">("login");
   const [submitting, setSubmitting] = useState(false);
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const { level, checks } = evaluatePassword(password);
 
   const redirectAfterAuth = async (userId: string) => {
