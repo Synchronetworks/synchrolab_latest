@@ -105,6 +105,12 @@ const CourseDetail = () => {
         total_amount: total,
         notes: [
           isParticipant ? "Penempah juga adalah peserta" : "Penempah BUKAN peserta",
+          participants.length > 0
+            ? "Peserta tambahan: " +
+              participants
+                .map((p, i) => `${i + 1}) ${p.name || "-"} (${p.age || "-"} thn)`)
+                .join(", ")
+            : null,
           parsed.data.notes,
         ].filter(Boolean).join(" • ") || null,
         user_id: session?.user?.id ?? null,
