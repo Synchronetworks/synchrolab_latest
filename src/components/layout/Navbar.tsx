@@ -1,8 +1,10 @@
-import { Link, useLocation } from "react-router-dom";
-import { Menu, X } from "lucide-react";
-import { useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Menu, X, LayoutDashboard, LogOut } from "lucide-react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 import logo from "@/assets/logo-synchronetwork.png";
 
 const links = [
@@ -15,7 +17,47 @@ const links = [
 
 export const Navbar = () => {
   const [open, setOpen] = useState(false);
+  const [authed, setAuthed] = useState(false);
   const { pathname } = useLocation();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => setAuthed(!!session));
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => setAuthed(!!session));
+    return () => sub.subscription.unsubscribe();
+  }, []);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    toast.success("Berjaya log keluar");
+    navigate("/", { replace: true });
+    setOpen(false);
+  };
+
+  const AuthButtons = ({ mobile = false }: { mobile?: boolean }) =>
+    authed ? (
+      <>
+        <Button asChild variant={mobile ? "outline" : "ghost"} size="sm" className={mobile ? "w-full" : ""}>
+          <Link to="/dashboard" onClick={() => setOpen(false)}>
+            <LayoutDashboard className="h-4 w-4" />
+            Dashboard
+          </Link>
+        </Button>
+        <Button variant={mobile ? "accent" : "accent"} size="sm" onClick={handleLogout} className={mobile ? "w-full" : ""}>
+          <LogOut className="h-4 w-4" />
+          Log Keluar
+        </Button>
+      </>
+    ) : (
+      <>
+        <Button asChild variant="ghost" size="sm" className={mobile ? "w-full" : ""}>
+          <Link to="/auth" onClick={() => setOpen(false)}>Log Masuk</Link>
+        </Button>
+        <Button asChild variant="accent" size="sm" className={mobile ? "w-full" : ""}>
+          <Link to="/auth" onClick={() => setOpen(false)}>Daftar Sekarang</Link>
+        </Button>
+      </>
+    );
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/50 bg-background/85 backdrop-blur-lg">
@@ -47,9 +89,7 @@ export const Navbar = () => {
         </nav>
 
         <div className="hidden items-center gap-2 md:flex">
-          <Button asChild variant="accent" size="sm">
-            <Link to="/kursus">Daftar Sekarang</Link>
-          </Button>
+          <AuthButtons />
         </div>
 
         <button
@@ -74,9 +114,9 @@ export const Navbar = () => {
                 {l.label}
               </Link>
             ))}
-            <Button asChild variant="accent" className="mt-2">
-              <Link to="/kursus" onClick={() => setOpen(false)}>Daftar Sekarang</Link>
-            </Button>
+            <div className="mt-2 flex flex-col gap-2">
+              <AuthButtons mobile />
+            </div>
           </nav>
         </div>
       )}
