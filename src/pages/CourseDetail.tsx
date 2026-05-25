@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { ArrowLeft, Award, CalendarDays, CheckCircle2, Clock, GraduationCap, Loader2, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -32,6 +32,18 @@ const CourseDetail = () => {
   const [success, setSuccess] = useState<string | null>(null);
   const [form, setForm] = useState({ customer_name: "", email: "", phone: "", company: "", num_pax: 1, notes: "" });
   const [isParticipant, setIsParticipant] = useState(true);
+  const [participants, setParticipants] = useState<{ name: string; age: string }[]>([]);
+
+  const extrasCount = Math.max(0, form.num_pax - (isParticipant ? 1 : 0));
+
+  useEffect(() => {
+    setParticipants((prev) => {
+      const next = [...prev];
+      while (next.length < extrasCount) next.push({ name: "", age: "" });
+      next.length = extrasCount;
+      return next;
+    });
+  }, [extrasCount]);
 
   const course = data?.course;
   const slots = data?.slots ?? [];
@@ -93,6 +105,12 @@ const CourseDetail = () => {
         total_amount: total,
         notes: [
           isParticipant ? "Penempah juga adalah peserta" : "Penempah BUKAN peserta",
+          participants.length > 0
+            ? "Peserta tambahan: " +
+              participants
+                .map((p, i) => `${i + 1}) ${p.name || "-"} (${p.age || "-"} thn)`)
+                .join(", ")
+            : null,
           parsed.data.notes,
         ].filter(Boolean).join(" • ") || null,
         user_id: session?.user?.id ?? null,
@@ -285,6 +303,42 @@ const CourseDetail = () => {
                   <Input required type="number" min={1} max={selectedSlot?.seats_left ?? 50} className="mt-1.5" value={form.num_pax} onChange={(e) => setForm({ ...form, num_pax: Number(e.target.value) })} />
                 </div>
               </div>
+
+              {extrasCount > 0 && (
+                <div className="rounded-lg border border-dashed border-border bg-secondary/30 p-3">
+                  <p className="mb-2 text-sm font-medium text-foreground">
+                    Maklumat peserta tambahan ({extrasCount})
+                  </p>
+                  <div className="space-y-2">
+                    {participants.map((p, i) => (
+                      <div key={i} className="grid grid-cols-[1fr_90px] gap-2">
+                        <Input
+                          placeholder={`Nama peserta ${i + 1}`}
+                          maxLength={200}
+                          value={p.name}
+                          onChange={(e) => {
+                            const next = [...participants];
+                            next[i] = { ...next[i], name: e.target.value };
+                            setParticipants(next);
+                          }}
+                        />
+                        <Input
+                          type="number"
+                          min={1}
+                          max={120}
+                          placeholder="Umur"
+                          value={p.age}
+                          onChange={(e) => {
+                            const next = [...participants];
+                            next[i] = { ...next[i], age: e.target.value };
+                            setParticipants(next);
+                          }}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <Label>E-mel *</Label>
