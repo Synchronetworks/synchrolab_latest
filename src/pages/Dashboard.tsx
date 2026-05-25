@@ -5,7 +5,10 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { BookOpen, DoorOpen, Calendar, Hash } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { BookOpen, DoorOpen, Calendar, Hash, User, Save } from "lucide-react";
+import { toast } from "sonner";
 
 type Booking = {
   id: string;
@@ -56,6 +59,10 @@ const Dashboard = () => {
   const [email, setEmail] = useState<string>("");
   const [fullName, setFullName] = useState<string>("");
   const [bookings, setBookings] = useState<Booking[]>([]);
+  const [userId, setUserId] = useState<string>("");
+  const [phone, setPhone] = useState<string>("");
+  const [profileName, setProfileName] = useState<string>("");
+  const [savingProfile, setSavingProfile] = useState(false);
 
   useEffect(() => {
     const init = async () => {
@@ -65,9 +72,10 @@ const Dashboard = () => {
         return;
       }
       setEmail(session.user.email ?? "");
+      setUserId(session.user.id);
 
       const [{ data: profile }, { data: bks }] = await Promise.all([
-        supabase.from("profiles").select("full_name").eq("id", session.user.id).maybeSingle(),
+        supabase.from("profiles").select("full_name, phone").eq("id", session.user.id).maybeSingle(),
         supabase
           .from("bookings")
           .select("*")
@@ -76,6 +84,8 @@ const Dashboard = () => {
       ]);
 
       if (profile?.full_name) setFullName(profile.full_name);
+      setProfileName(profile?.full_name ?? "");
+      setPhone(profile?.phone ?? "");
 
       const rows = (bks ?? []) as Booking[];
       const courseIds = [...new Set(rows.filter((b) => b.course_id).map((b) => b.course_id!))];
@@ -113,6 +123,22 @@ const Dashboard = () => {
     init();
   }, [navigate]);
 
+  const handleSaveProfile = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!userId) return;
+    setSavingProfile(true);
+    const { error } = await supabase
+      .from("profiles")
+      .upsert({ id: userId, full_name: profileName.trim() || null, phone: phone.trim() || null });
+    setSavingProfile(false);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    setFullName(profileName.trim());
+    toast.success("Profil dikemaskini");
+  };
+
   const courseBookings = bookings.filter((b) => b.type === "course");
   const roomBookings = bookings.filter((b) => b.type === "room");
 
@@ -130,6 +156,54 @@ const Dashboard = () => {
         <StatCard label="Tempahan Kursus" value={courseBookings.length} />
         <StatCard label="Tempahan Bilik" value={roomBookings.length} />
       </div>
+
+      <Card className="mt-10">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 font-display text-xl font-bold text-foreground">
+            <User className="h-5 w-5 text-accent" />
+            Profil Saya
+          </CardTitle>
+          <p className="text-xs text-muted-foreground">
+            Maklumat ini akan dipaparkan secara automatik pada borang tempahan.
+          </p>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSaveProfile} className="grid gap-4 sm:grid-cols-2">
+            <div className="sm:col-span-2">
+              <Label htmlFor="profile-email">Emel</Label>
+              <Input id="profile-email" value={email} disabled className="mt-1.5 bg-muted" />
+            </div>
+            <div>
+              <Label htmlFor="profile-name">Nama Penuh</Label>
+              <Input
+                id="profile-name"
+                value={profileName}
+                onChange={(e) => setProfileName(e.target.value)}
+                maxLength={200}
+                className="mt-1.5"
+                placeholder="Nama anda"
+              />
+            </div>
+            <div>
+              <Label htmlFor="profile-phone">No. Telefon</Label>
+              <Input
+                id="profile-phone"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                maxLength={30}
+                className="mt-1.5"
+                placeholder="012-3456789"
+              />
+            </div>
+            <div className="sm:col-span-2 flex justify-end">
+              <Button type="submit" disabled={savingProfile}>
+                <Save className="h-4 w-4" />
+                {savingProfile ? "Menyimpan..." : "Simpan Profil"}
+              </Button>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
 
       <section className="mt-10">
         <div className="flex items-center justify-between">
