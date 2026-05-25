@@ -110,16 +110,30 @@ const CourseDetail = () => {
           <Link to="/kursus" className="inline-flex items-center gap-2 text-sm text-white/80 hover:text-white">
             <ArrowLeft className="h-4 w-4" /> Kembali ke senarai kursus
           </Link>
-          <Badge className="mt-6 bg-accent text-accent-foreground hover:bg-accent">{course.category}</Badge>
-          <h1 className="mt-4 max-w-3xl font-display text-3xl font-extrabold text-white md:text-4xl lg:text-5xl">
-            {course.title}
-          </h1>
-          <p className="mt-4 max-w-2xl text-white/80">{course.short_desc}</p>
+          <div className="mt-6 grid items-center gap-10 lg:grid-cols-[1fr_420px]">
+            <div>
+              <Badge className="bg-accent text-accent-foreground hover:bg-accent">{course.category}</Badge>
+              <h1 className="mt-4 font-display text-3xl font-extrabold text-white md:text-4xl lg:text-5xl">
+                {course.title}
+              </h1>
+              <p className="mt-4 max-w-2xl text-white/80">{course.short_desc}</p>
 
-          <div className="mt-6 flex flex-wrap gap-x-8 gap-y-3 text-sm text-white/85">
-            <span className="inline-flex items-center gap-2"><Clock className="h-4 w-4 text-accent" /> {course.duration}</span>
-            {course.facilitator && <span className="inline-flex items-center gap-2"><Users className="h-4 w-4 text-accent" /> {course.facilitator}</span>}
-            <span className="inline-flex items-center gap-2"><Award className="h-4 w-4 text-accent" /> Sijil disediakan</span>
+              <div className="mt-6 flex flex-wrap gap-x-8 gap-y-3 text-sm text-white/85">
+                <span className="inline-flex items-center gap-2"><Clock className="h-4 w-4 text-accent" /> {course.duration}</span>
+                {course.facilitator && <span className="inline-flex items-center gap-2"><Users className="h-4 w-4 text-accent" /> {course.facilitator}</span>}
+                <span className="inline-flex items-center gap-2"><Award className="h-4 w-4 text-accent" /> Sijil disediakan</span>
+              </div>
+            </div>
+            {course.image_url && (
+              <div className="overflow-hidden rounded-2xl border border-white/10 shadow-elegant">
+                <img
+                  src={course.image_url}
+                  alt={course.title}
+                  loading="lazy"
+                  className="aspect-[4/3] h-full w-full object-cover"
+                />
+              </div>
+            )}
           </div>
         </div>
       </section>
