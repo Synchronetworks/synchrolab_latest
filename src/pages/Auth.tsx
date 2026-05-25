@@ -18,11 +18,22 @@ const Auth = () => {
   const [mode, setMode] = useState<"login" | "signup">("login");
   const [submitting, setSubmitting] = useState(false);
 
+  const redirectAfterAuth = async (userId: string) => {
+    const { data } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", userId)
+      .eq("role", "admin")
+      .maybeSingle();
+    navigate(data ? "/admin" : "/dashboard", { replace: true });
+  };
+
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) navigate("/admin", { replace: true });
+      if (session) redirectAfterAuth(session.user.id);
     });
-  }, [navigate]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -40,15 +51,15 @@ const Auth = () => {
     const { email, password } = parsed.data;
     try {
       if (mode === "login") {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
         toast.success("Berjaya log masuk");
-        navigate("/admin", { replace: true });
+        if (data.user) await redirectAfterAuth(data.user.id);
       } else {
         const { error } = await supabase.auth.signUp({
           email,
           password,
-          options: { emailRedirectTo: `${window.location.origin}/admin` },
+          options: { emailRedirectTo: `${window.location.origin}/dashboard` },
         });
         if (error) throw error;
         toast.success("Akaun dicipta", { description: "Sila log masuk." });
@@ -68,12 +79,12 @@ const Auth = () => {
           ← Kembali ke laman utama
         </Link>
         <h1 className="mt-4 font-display text-3xl font-extrabold text-foreground">
-          {mode === "login" ? "Log Masuk Admin" : "Daftar Akaun"}
+          {mode === "login" ? "Log Masuk" : "Daftar Akaun"}
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
           {mode === "login"
-            ? "Akses panel pengurusan SynchroLab."
-            : "Cipta akaun baru untuk akses panel."}
+            ? "Akses dashboard tempahan anda."
+            : "Cipta akaun untuk uruskan tempahan anda."}
         </p>
 
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
