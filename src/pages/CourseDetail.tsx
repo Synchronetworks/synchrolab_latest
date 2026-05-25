@@ -101,39 +101,35 @@ const CourseDetail = () => {
       return;
     }
     setSubmitting(true);
-    const { data: { session } } = await supabase.auth.getSession();
-    const { data: inserted, error: insertErr } = await supabase
-      .from("bookings")
-      .insert({
-        type: "course",
-        course_id: course.id,
-        slot_id: selectedSlot.id,
-        customer_name: parsed.data.customer_name,
-        email: parsed.data.email,
-        phone: parsed.data.phone,
-        company: parsed.data.company || null,
-        num_pax: parsed.data.num_pax,
-        total_amount: total,
-        notes: [
-          isParticipant ? "Penempah juga adalah peserta" : "Penempah BUKAN peserta",
-          participants.length > 0
-            ? "Peserta tambahan: " +
-              participants
-                .map((p, i) => `${i + 1}) ${p.name || "-"} (${p.age || "-"} thn)`)
-                .join(", ")
-            : null,
-          parsed.data.notes,
-        ].filter(Boolean).join(" • ") || null,
-        user_id: session?.user?.id ?? null,
-      })
-      .select("ref_no")
-      .single();
+    const notes = [
+      isParticipant ? "Penempah juga adalah peserta" : "Penempah BUKAN peserta",
+      participants.length > 0
+        ? "Peserta: " +
+          participants
+            .map((p, i) => `${i + 1}) ${p.name || "-"} (${p.age || "-"} thn)`)
+            .join(", ")
+        : null,
+      parsed.data.notes,
+    ].filter(Boolean).join(" • ") || null;
+
+    const { data: refNo, error: insertErr } = await supabase.rpc("create_booking", {
+      _type: "course",
+      _customer_name: parsed.data.customer_name,
+      _email: parsed.data.email,
+      _phone: parsed.data.phone,
+      _num_pax: parsed.data.num_pax,
+      _total_amount: total,
+      _course_id: course.id,
+      _slot_id: selectedSlot.id,
+      _company: parsed.data.company || null,
+      _notes: notes,
+    });
     setSubmitting(false);
-    if (insertErr) {
-      toast.error("Gagal menempah", { description: insertErr.message });
+    if (insertErr || !refNo) {
+      toast.error("Gagal menempah", { description: insertErr?.message ?? "Ralat tidak diketahui" });
       return;
     }
-    setSuccess(inserted.ref_no);
+    setSuccess(refNo as string);
     setForm({ customer_name: "", customer_age: "", email: "", phone: "", company: "", num_pax: 1, notes: "" });
   };
 
