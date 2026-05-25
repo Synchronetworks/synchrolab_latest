@@ -7,6 +7,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import { Check, X } from "lucide-react";
+
+const Hint = ({ ok, text }: { ok: boolean; text: string }) => (
+  <li className={`flex items-center gap-1 ${ok ? "text-emerald-600" : ""}`}>
+    {ok ? <Check className="h-3 w-3" /> : <X className="h-3 w-3 opacity-50" />}
+    {text}
+  </li>
+);
 
 const schema = z.object({
   email: z.string().trim().email("Emel tidak sah").max(255),
