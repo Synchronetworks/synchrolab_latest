@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { ArrowLeft, Award, CalendarDays, CheckCircle2, Clock, GraduationCap, Loader2, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
