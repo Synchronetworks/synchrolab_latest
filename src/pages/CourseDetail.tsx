@@ -35,6 +35,9 @@ const CourseDetail = () => {
   const [participants, setParticipants] = useState<{ name: string; age: string }[]>([]);
   const [lockedEmail, setLockedEmail] = useState(false);
   const [lockedPhone, setLockedPhone] = useState(false);
+  const [promoInput, setPromoInput] = useState("");
+  const [promo, setPromo] = useState<{ code: string; discount: number } | null>(null);
+  const [validatingPromo, setValidatingPromo] = useState(false);
 
   const participantsCount = isParticipant ? form.num_pax : Math.max(0, form.num_pax);
 
@@ -89,6 +92,39 @@ const CourseDetail = () => {
     const unit = course.group_price && form.num_pax >= 5 ? course.group_price : course.price;
     return unit * form.num_pax;
   }, [course, form.num_pax]);
+
+  const finalTotal = Math.max(0, total - (promo?.discount ?? 0));
+
+  // Auto-clear promo if subtotal changes
+  useEffect(() => {
+    if (promo) setPromo(null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [total]);
+
+  const applyPromo = async () => {
+    const code = promoInput.trim();
+    if (!code) return;
+    if (!form.email) {
+      toast.error("Sila isi e-mel dahulu");
+      return;
+    }
+    setValidatingPromo(true);
+    const { data, error } = await supabase.rpc("validate_promo_code", {
+      _code: code,
+      _email: form.email,
+      _subtotal: total,
+      _booking_type: "course",
+    });
+    setValidatingPromo(false);
+    const row = Array.isArray(data) ? data[0] : data;
+    if (error || !row?.valid) {
+      setPromo(null);
+      toast.error(row?.message || error?.message || "Kod promo tidak sah");
+      return;
+    }
+    setPromo({ code: row.code, discount: Number(row.discount) });
+    toast.success(`Diskaun RM${Number(row.discount).toLocaleString()} digunakan`);
+  };
 
   if (isLoading) {
     return (
