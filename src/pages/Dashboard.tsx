@@ -496,6 +496,58 @@ const EmptyState = ({
   </div>
 );
 
+const downloadReceipt = (b: Booking, title: string, subtitle?: string) => {
+  const doc = new jsPDF();
+  const today = new Date().toLocaleDateString("ms-MY");
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(20);
+  doc.text("RESIT RASMI", 105, 25, { align: "center" });
+
+  doc.setFontSize(12);
+  doc.text("SynchroLab.my", 105, 33, { align: "center" });
+
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(9);
+  doc.text("Synchronetwork Sdn. Bhd. (1194790-K)", 105, 39, { align: "center" });
+  doc.text("79A, Jalan Nova U5/N, Subang Bestari Sek. U5, 40150 Shah Alam, Selangor", 105, 44, { align: "center" });
+
+  doc.setDrawColor(180);
+  doc.line(20, 50, 190, 50);
+
+  doc.setFontSize(11);
+  doc.text(`No. Rujukan: ${b.ref_no}`, 20, 60);
+  doc.text(`Tarikh Resit: ${today}`, 20, 67);
+  doc.text(`Pelanggan: ${b.customer_name}`, 20, 74);
+  doc.text(`E-mel: ${b.email}`, 20, 81);
+  doc.text(`Status Bayaran: PAID`, 20, 88);
+
+  doc.setFont("helvetica", "bold");
+  doc.text("Butiran Tempahan", 20, 102);
+  doc.setFont("helvetica", "normal");
+
+  doc.text(`${b.type === "course" ? "Kursus" : "Bilik"}:`, 20, 112);
+  doc.text(doc.splitTextToSize(title, 125), 60, 112);
+  if (subtitle) {
+    doc.text(`Tarikh:`, 20, 122);
+    doc.text(doc.splitTextToSize(subtitle, 125), 60, 122);
+  }
+  doc.text(`Bil. Peserta:`, 20, 132);
+  doc.text(String(b.num_pax), 60, 132);
+
+  doc.line(20, 145, 190, 145);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(13);
+  doc.text("Jumlah Dibayar:", 20, 155);
+  doc.text(fmtMoney(b.total_amount), 190, 155, { align: "right" });
+
+  doc.setFont("helvetica", "italic");
+  doc.setFontSize(9);
+  doc.text("Terima kasih kerana menggunakan SynchroLab.my", 105, 280, { align: "center" });
+
+  doc.save(`Resit-${b.ref_no}.pdf`);
+};
+
 const BookingRow = ({
   b,
   title,
@@ -529,7 +581,11 @@ const BookingRow = ({
       <div className="flex flex-col items-end gap-2">
         <p className="font-display text-lg font-bold text-foreground">{fmtMoney(b.total_amount)}</p>
         <p className="text-xs text-muted-foreground">{fmtDate(b.created_at)}</p>
-        {b.payment_status !== "paid" && (
+        {b.payment_status === "paid" ? (
+          <Button size="sm" variant="outline" onClick={() => downloadReceipt(b, title, subtitle)}>
+            <FileText className="h-4 w-4" /> Lihat Resit
+          </Button>
+        ) : (
           <PayButton refNo={b.ref_no} email={b.email} payUrl={b.payment_url} />
         )}
       </div>
