@@ -6,17 +6,34 @@ const corsHeaders = {
   "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
 };
 
-// Billplz X-Signature: HMAC-SHA256 over sorted "key{value}" pairs joined by "|"
-// Source field is provided separately as x_signature, exclude it from the string-to-sign.
+// Billplz X-Signature for Callback URL: HMAC-SHA256 over a FIXED subset of
+// fields (alphabetically sorted, case-insensitive), joined as "key{value}" by "|".
+// Per spec, only these 12 fields are part of the source string — extras like
+// transaction_id / transaction_status / reference_* MUST be excluded.
+const WEBHOOK_SIGNED_KEYS = [
+  "amount",
+  "collection_id",
+  "due_at",
+  "email",
+  "id",
+  "mobile",
+  "name",
+  "paid_amount",
+  "paid_at",
+  "paid",
+  "state",
+  "url",
+];
+
 async function verifyXSignature(
   fields: Record<string, string>,
   providedSignature: string,
   secret: string,
 ): Promise<boolean> {
-  const keys = Object.keys(fields)
-    .filter((k) => k !== "x_signature")
-    .sort();
-  const stringToSign = keys.map((k) => `${k}${fields[k]}`).join("|");
+  const keys = [...WEBHOOK_SIGNED_KEYS].sort((a, b) =>
+    a.toLowerCase().localeCompare(b.toLowerCase()),
+  );
+  const stringToSign = keys.map((k) => `${k}${fields[k] ?? ""}`).join("|");
 
   const enc = new TextEncoder();
   const key = await crypto.subtle.importKey(
