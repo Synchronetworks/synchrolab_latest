@@ -76,7 +76,7 @@ const CourseDetail = () => {
       return;
     }
     setSubmitting(true);
-    const { data: user } = await supabase.auth.getUser();
+    const { data: { session } } = await supabase.auth.getSession();
     const { data: inserted, error: insertErr } = await supabase
       .from("bookings")
       .insert({
@@ -90,7 +90,7 @@ const CourseDetail = () => {
         num_pax: parsed.data.num_pax,
         total_amount: total,
         notes: parsed.data.notes || null,
-        user_id: user.user?.id ?? null,
+        user_id: session?.user?.id ?? null,
       })
       .select("ref_no")
       .single();
