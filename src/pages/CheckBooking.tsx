@@ -64,10 +64,7 @@ const CheckBooking = () => {
     : "";
   const dateLabel = result
     ? result.slot_label ??
-      [result.booking_date_from, result.booking_date_to]
-        .filter(Boolean)
-        .join(" – ") ||
-      "—"
+      ([result.booking_date_from, result.booking_date_to].filter(Boolean).join(" – ") || "—")
     : "";
 
   const downloadReceipt = () => {
