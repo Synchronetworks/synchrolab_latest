@@ -143,13 +143,27 @@ const CourseDetail = () => {
       _company: parsed.data.company || null,
       _notes: notes,
     });
-    setSubmitting(false);
     if (insertErr || !refNo) {
+      setSubmitting(false);
       toast.error("Gagal menempah", { description: insertErr?.message ?? "Ralat tidak diketahui" });
       return;
     }
-    setSuccess(refNo as string);
+
+    // Cipta bil Billplz dan redirect ke laman bayaran
+    toast.info("Menyediakan laman bayaran...");
+    const { data: billData, error: billErr } = await supabase.functions.invoke("create-billplz-bill", {
+      body: { ref_no: refNo, email: parsed.data.email },
+    });
+    setSubmitting(false);
+    if (billErr || !billData?.url) {
+      toast.error("Tempahan berjaya tetapi gagal buka laman bayaran", {
+        description: `Sila ke Dashboard untuk teruskan bayaran. Ref: ${refNo}`,
+      });
+      setSuccess(refNo as string);
+      return;
+    }
     setForm({ customer_name: "", customer_age: "", email: "", phone: "", company: "", num_pax: 1, notes: "" });
+    window.location.href = billData.url;
   };
 
   return (

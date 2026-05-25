@@ -25,6 +25,8 @@ type Booking = {
   slot_id: string | null;
   room_id: string | null;
   created_at: string;
+  email: string;
+  payment_url: string | null;
   course_title?: string;
   slot_label?: string;
   room_name?: string;
@@ -321,12 +323,40 @@ const BookingRow = ({
           <Hash className="h-3 w-3" /> {b.ref_no} • {b.num_pax} peserta
         </p>
       </div>
-      <div className="text-right">
+      <div className="flex flex-col items-end gap-2">
         <p className="font-display text-lg font-bold text-foreground">{fmtMoney(b.total_amount)}</p>
         <p className="text-xs text-muted-foreground">{fmtDate(b.created_at)}</p>
+        {b.payment_status !== "paid" && (
+          <PayButton refNo={b.ref_no} email={b.email} payUrl={b.payment_url} />
+        )}
       </div>
     </CardContent>
   </Card>
 );
+
+const PayButton = ({ refNo, email, payUrl }: { refNo: string; email: string; payUrl: string | null }) => {
+  const [loading, setLoading] = useState(false);
+  const handleClick = async () => {
+    if (payUrl) {
+      window.location.href = payUrl;
+      return;
+    }
+    setLoading(true);
+    const { data, error } = await supabase.functions.invoke("create-billplz-bill", {
+      body: { ref_no: refNo, email },
+    });
+    setLoading(false);
+    if (error || !data?.url) {
+      toast.error("Gagal buka laman bayaran", { description: error?.message ?? data?.error });
+      return;
+    }
+    window.location.href = data.url;
+  };
+  return (
+    <Button size="sm" onClick={handleClick} disabled={loading}>
+      {loading ? "Membuka..." : "Bayar Sekarang"}
+    </Button>
+  );
+};
 
 export default Dashboard;

@@ -85,15 +85,27 @@ const Rooms = () => {
       _booking_date_to: parsed.data.date,
       _notes: buildNotes(),
     });
-    setSubmitting(false);
     if (error || !ref) {
+      setSubmitting(false);
       toast.error("Gagal menempah", { description: error?.message ?? "Ralat tidak diketahui" });
       return;
     }
-    setRefNo(ref as string);
+
+    toast.info("Menyediakan laman bayaran...");
+    const { data: billData, error: billErr } = await supabase.functions.invoke("create-billplz-bill", {
+      body: { ref_no: ref, email: parsed.data.email },
+    });
+    setSubmitting(false);
+    if (billErr || !billData?.url) {
+      toast.error("Tempahan berjaya tetapi gagal buka laman bayaran", {
+        description: `Sila ke Dashboard untuk teruskan bayaran. Ref: ${ref}`,
+      });
+      setRefNo(ref as string);
+      return;
+    }
     setForm({ room_id: rooms[0]?.id ?? "", date: "", time: "", duration: 4, customer_name: "", email: "", phone: "", notes: "" });
     setSelectedAddons({});
-    toast.success("Tempahan diterima!", { description: `Rujukan: ${ref}` });
+    window.location.href = billData.url;
   };
 
   const buildNotes = () => {
