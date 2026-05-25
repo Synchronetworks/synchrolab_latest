@@ -134,7 +134,7 @@ const CourseDetail = () => {
       return;
     }
     setSuccess(inserted.ref_no);
-    setForm({ customer_name: "", email: "", phone: "", company: "", num_pax: 1, notes: "" });
+    setForm({ customer_name: "", customer_age: "", email: "", phone: "", company: "", num_pax: 1, notes: "" });
   };
 
   return (
@@ -356,42 +356,6 @@ const CourseDetail = () => {
                         </div>
                       );
                     })}
-                  </div>
-                </div>
-              )}
-
-              {extrasCount > 0 && (
-                <div className="rounded-lg border border-dashed border-border bg-secondary/30 p-3">
-                  <p className="mb-2 text-sm font-medium text-foreground">
-                    Maklumat peserta tambahan ({extrasCount})
-                  </p>
-                  <div className="space-y-2">
-                    {participants.map((p, i) => (
-                      <div key={i} className="grid grid-cols-[1fr_90px] gap-2">
-                        <Input
-                          placeholder={`Nama peserta ${i + 1}`}
-                          maxLength={200}
-                          value={p.name}
-                          onChange={(e) => {
-                            const next = [...participants];
-                            next[i] = { ...next[i], name: e.target.value };
-                            setParticipants(next);
-                          }}
-                        />
-                        <Input
-                          type="number"
-                          min={1}
-                          max={120}
-                          placeholder="Umur"
-                          value={p.age}
-                          onChange={(e) => {
-                            const next = [...participants];
-                            next[i] = { ...next[i], age: e.target.value };
-                            setParticipants(next);
-                          }}
-                        />
-                      </div>
-                    ))}
                   </div>
                 </div>
               )}
