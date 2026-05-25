@@ -32,6 +32,25 @@ const Rooms = () => {
     if (!form.room_id && rooms.length > 0) setForm((f) => ({ ...f, room_id: rooms[0].id }));
   }, [rooms, form.room_id]);
 
+  // Prefill from logged-in user's profile
+  useEffect(() => {
+    (async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("full_name, phone")
+        .eq("id", session.user.id)
+        .maybeSingle();
+      setForm((f) => ({
+        ...f,
+        customer_name: f.customer_name || profile?.full_name || "",
+        email: f.email || session.user.email || "",
+        phone: f.phone || profile?.phone || "",
+      }));
+    })();
+  }, []);
+
   const selectedRoom = useMemo(() => rooms.find((r) => r.id === form.room_id), [rooms, form.room_id]);
 
   const baseTotal = useMemo(() => {
