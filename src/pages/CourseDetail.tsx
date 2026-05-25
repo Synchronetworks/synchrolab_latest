@@ -32,6 +32,18 @@ const CourseDetail = () => {
   const [success, setSuccess] = useState<string | null>(null);
   const [form, setForm] = useState({ customer_name: "", email: "", phone: "", company: "", num_pax: 1, notes: "" });
   const [isParticipant, setIsParticipant] = useState(true);
+  const [participants, setParticipants] = useState<{ name: string; age: string }[]>([]);
+
+  const extrasCount = Math.max(0, form.num_pax - (isParticipant ? 1 : 0));
+
+  useEffect(() => {
+    setParticipants((prev) => {
+      const next = [...prev];
+      while (next.length < extrasCount) next.push({ name: "", age: "" });
+      next.length = extrasCount;
+      return next;
+    });
+  }, [extrasCount]);
 
   const course = data?.course;
   const slots = data?.slots ?? [];
