@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
@@ -7,7 +7,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { BookOpen, DoorOpen, Calendar, Hash, User, Save } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { BookOpen, DoorOpen, Calendar, Hash, User, Save, KeyRound, Camera, Link2 } from "lucide-react";
 import { toast } from "sonner";
 
 type Booking = {
@@ -64,7 +65,14 @@ const Dashboard = () => {
   const [userId, setUserId] = useState<string>("");
   const [phone, setPhone] = useState<string>("");
   const [profileName, setProfileName] = useState<string>("");
+  const [age, setAge] = useState<string>("");
+  const [company, setCompany] = useState<string>("");
+  const [avatarUrl, setAvatarUrl] = useState<string>("");
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [savingProfile, setSavingProfile] = useState(false);
+  const [sendingReset, setSendingReset] = useState(false);
+  const [linkingBookings, setLinkingBookings] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const init = async () => {
@@ -77,7 +85,7 @@ const Dashboard = () => {
       setUserId(session.user.id);
 
       const [{ data: profile }, { data: bks }] = await Promise.all([
-        supabase.from("profiles").select("full_name, phone").eq("id", session.user.id).maybeSingle(),
+        supabase.from("profiles").select("full_name, phone, avatar_url, age, company").eq("id", session.user.id).maybeSingle(),
         supabase
           .from("bookings")
           .select("*")
@@ -88,6 +96,9 @@ const Dashboard = () => {
       if (profile?.full_name) setFullName(profile.full_name);
       setProfileName(profile?.full_name ?? "");
       setPhone(profile?.phone ?? "");
+      setAvatarUrl((profile as any)?.avatar_url ?? "");
+      setAge((profile as any)?.age != null ? String((profile as any).age) : "");
+      setCompany((profile as any)?.company ?? "");
 
       const rows = (bks ?? []) as Booking[];
       const courseIds = [...new Set(rows.filter((b) => b.course_id).map((b) => b.course_id!))];
@@ -128,10 +139,25 @@ const Dashboard = () => {
   const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!userId) return;
+    let ageNum: number | null = null;
+    if (age.trim()) {
+      const n = parseInt(age.trim(), 10);
+      if (isNaN(n) || n < 1 || n > 120) {
+        toast.error("Umur tidak sah (1-120)");
+        return;
+      }
+      ageNum = n;
+    }
     setSavingProfile(true);
     const { error } = await supabase
       .from("profiles")
-      .upsert({ id: userId, full_name: profileName.trim() || null, phone: phone.trim() || null });
+      .upsert({
+        id: userId,
+        full_name: profileName.trim() || null,
+        phone: phone.trim() || null,
+        age: ageNum,
+        company: company.trim() || null,
+      });
     setSavingProfile(false);
     if (error) {
       toast.error(error.message);
@@ -141,8 +167,83 @@ const Dashboard = () => {
     toast.success("Profil dikemaskini");
   };
 
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file || !userId) return;
+    if (!file.type.startsWith("image/")) {
+      toast.error("Sila pilih fail imej");
+      return;
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error("Saiz imej maksimum 2MB");
+      return;
+    }
+    setUploadingAvatar(true);
+    const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
+    const path = `${userId}/avatar-${Date.now()}.${ext}`;
+    const { error: upErr } = await supabase.storage
+      .from("avatars")
+      .upload(path, file, { cacheControl: "3600", upsert: true });
+    if (upErr) {
+      setUploadingAvatar(false);
+      toast.error(upErr.message);
+      return;
+    }
+    const { data: pub } = supabase.storage.from("avatars").getPublicUrl(path);
+    const url = pub.publicUrl;
+    const { error: updErr } = await supabase
+      .from("profiles")
+      .upsert({ id: userId, avatar_url: url });
+    setUploadingAvatar(false);
+    if (updErr) {
+      toast.error(updErr.message);
+      return;
+    }
+    setAvatarUrl(url);
+    toast.success("Gambar profil dikemaskini");
+  };
+
+  const handleResetPassword = async () => {
+    if (!email) return;
+    setSendingReset(true);
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    setSendingReset(false);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    toast.success("Pautan reset kata laluan dihantar ke emel anda");
+  };
+
+  const handleLinkBookings = async () => {
+    setLinkingBookings(true);
+    const { data, error } = await supabase.rpc("link_bookings_to_user");
+    setLinkingBookings(false);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    const n = (data as number) ?? 0;
+    if (n > 0) {
+      toast.success(`${n} tempahan dihubungkan ke akaun anda`);
+      window.location.reload();
+    } else {
+      toast.info("Tiada tempahan baru untuk dihubungkan");
+    }
+  };
+
   const courseBookings = bookings.filter((b) => b.type === "course");
   const roomBookings = bookings.filter((b) => b.type === "room");
+
+  const initials = (fullName || email)
+    .split(/[\s@]+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((s) => s[0]?.toUpperCase())
+    .join("");
 
   return (
     <div className="container py-10">
@@ -170,6 +271,35 @@ const Dashboard = () => {
           </p>
         </CardHeader>
         <CardContent>
+          <div className="mb-6 flex items-center gap-4">
+            <Avatar className="h-20 w-20 border-2 border-border">
+              <AvatarImage src={avatarUrl} alt={fullName || email} />
+              <AvatarFallback className="bg-primary/10 text-primary font-semibold">
+                {initials || "U"}
+              </AvatarFallback>
+            </Avatar>
+            <div>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleAvatarChange}
+              />
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploadingAvatar}
+              >
+                <Camera className="h-4 w-4" />
+                {uploadingAvatar ? "Memuat naik..." : "Tukar Gambar"}
+              </Button>
+              <p className="mt-1.5 text-xs text-muted-foreground">JPG/PNG, maks. 2MB</p>
+            </div>
+          </div>
+
           <form onSubmit={handleSaveProfile} className="grid gap-4 sm:grid-cols-2">
             <div className="sm:col-span-2">
               <Label htmlFor="profile-email">Emel</Label>
@@ -197,6 +327,32 @@ const Dashboard = () => {
                 placeholder="012-3456789"
               />
             </div>
+            <div>
+              <Label htmlFor="profile-age">Umur</Label>
+              <Input
+                id="profile-age"
+                type="number"
+                min={1}
+                max={120}
+                value={age}
+                onChange={(e) => setAge(e.target.value)}
+                className="mt-1.5"
+                placeholder="cth: 28"
+              />
+            </div>
+            <div>
+              <Label htmlFor="profile-company">
+                Syarikat <span className="text-muted-foreground">(pilihan)</span>
+              </Label>
+              <Input
+                id="profile-company"
+                value={company}
+                onChange={(e) => setCompany(e.target.value)}
+                maxLength={200}
+                className="mt-1.5"
+                placeholder="Nama syarikat"
+              />
+            </div>
             <div className="sm:col-span-2 flex justify-end">
               <Button type="submit" disabled={savingProfile}>
                 <Save className="h-4 w-4" />
@@ -206,6 +362,52 @@ const Dashboard = () => {
           </form>
         </CardContent>
       </Card>
+
+      <Card className="mt-6">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 font-display text-xl font-bold text-foreground">
+            <KeyRound className="h-5 w-5 text-accent" />
+            Keselamatan & Tempahan
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="grid gap-4 sm:grid-cols-2">
+          <div className="rounded-lg border border-border p-4">
+            <h3 className="font-semibold text-foreground">Tukar Kata Laluan</h3>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Kami akan hantar pautan reset ke emel anda.
+            </p>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="mt-3"
+              onClick={handleResetPassword}
+              disabled={sendingReset}
+            >
+              <KeyRound className="h-4 w-4" />
+              {sendingReset ? "Menghantar..." : "Hantar Pautan Reset"}
+            </Button>
+          </div>
+          <div className="rounded-lg border border-border p-4">
+            <h3 className="font-semibold text-foreground">Hubungkan Tempahan Lama</h3>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Pautkan tempahan yang dibuat sebelum log masuk (mengikut emel) ke akaun ini.
+            </p>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="mt-3"
+              onClick={handleLinkBookings}
+              disabled={linkingBookings}
+            >
+              <Link2 className="h-4 w-4" />
+              {linkingBookings ? "Memproses..." : "Hubungkan Sekarang"}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
 
       <section className="mt-10">
         <div className="flex items-center justify-between">
