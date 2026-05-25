@@ -574,36 +574,52 @@ function SlotsManager({ course, onClose }: { course: Course; onClose: () => void
 
           <div className="rounded-lg border border-dashed border-border p-4">
             <p className="mb-3 text-sm font-medium">Tambah slot baru</p>
-            <div className="grid grid-cols-3 gap-2">
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className={cn("justify-start text-left font-normal", !newSlot.date_label && "text-muted-foreground")}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {newSlot.date_label || "Pilih tarikh"}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="range"
-                    selected={dateRange}
-                    onSelect={(range) => {
-                      setDateRange(range);
-                      setNewSlot({ ...newSlot, date_label: formatDateRange(range) });
-                    }}
-                    numberOfMonths={1}
-                    locale={ms}
-                    initialFocus
-                    className={cn("p-3 pointer-events-auto")}
-                  />
-                </PopoverContent>
-              </Popover>
-              <div className="flex items-center gap-1">
+            <div className="grid gap-3 md:grid-cols-2">
+              <div>
+                <Label className="text-xs">Tarikh kursus</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className={cn("mt-1.5 w-full justify-start text-left font-normal", !newSlot.date_label && "text-muted-foreground")}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {newSlot.date_label || "Pilih tarikh"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="range"
+                      selected={dateRange}
+                      onSelect={(range) => {
+                        setDateRange(range);
+                        setNewSlot({ ...newSlot, date_label: formatDateRange(range) });
+                      }}
+                      numberOfMonths={1}
+                      locale={ms}
+                      initialFocus
+                      className={cn("p-3 pointer-events-auto")}
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+              <div>
+                <Label className="text-xs">Bilangan tempat</Label>
+                <Input
+                  type="number"
+                  min={1}
+                  placeholder="cth: 20"
+                  className="mt-1.5"
+                  value={newSlot.seats_total}
+                  onChange={(e) => setNewSlot({ ...newSlot, seats_total: Number(e.target.value) })}
+                />
+              </div>
+              <div>
+                <Label className="text-xs">Masa mula</Label>
                 <Input
                   type="time"
+                  className="mt-1.5"
                   value={startTime}
                   onChange={(e) => {
                     const v = e.target.value;
@@ -611,9 +627,12 @@ function SlotsManager({ course, onClose }: { course: Course; onClose: () => void
                     setNewSlot({ ...newSlot, time_label: buildTimeLabel(v, endTime) });
                   }}
                 />
-                <span className="text-muted-foreground">-</span>
+              </div>
+              <div>
+                <Label className="text-xs">Masa tamat</Label>
                 <Input
                   type="time"
+                  className="mt-1.5"
                   value={endTime}
                   onChange={(e) => {
                     const v = e.target.value;
@@ -622,7 +641,6 @@ function SlotsManager({ course, onClose }: { course: Course; onClose: () => void
                   }}
                 />
               </div>
-              <Input type="number" min={1} placeholder="Tempat" value={newSlot.seats_total} onChange={(e) => setNewSlot({ ...newSlot, seats_total: Number(e.target.value) })} />
             </div>
             <Button onClick={addSlot} disabled={adding} variant="accent" size="sm" className="mt-3">
               {adding ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />} Tambah Slot
