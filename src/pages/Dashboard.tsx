@@ -5,8 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { BookOpen, DoorOpen, LogOut, Calendar, Hash } from "lucide-react";
-import { toast } from "sonner";
+import { BookOpen, DoorOpen, Calendar, Hash } from "lucide-react";
 
 type Booking = {
   id: string;
@@ -114,28 +113,16 @@ const Dashboard = () => {
     init();
   }, [navigate]);
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    toast.success("Berjaya log keluar");
-    navigate("/", { replace: true });
-  };
-
   const courseBookings = bookings.filter((b) => b.type === "course");
   const roomBookings = bookings.filter((b) => b.type === "room");
 
   return (
     <div className="container py-10">
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="font-display text-3xl font-extrabold text-foreground">
-            Hai, {fullName || email.split("@")[0]} 👋
-          </h1>
-          <p className="mt-1 text-sm text-muted-foreground">{email}</p>
-        </div>
-        <Button variant="outline" onClick={handleLogout}>
-          <LogOut className="h-4 w-4" />
-          Log Keluar
-        </Button>
+      <div>
+        <h1 className="font-display text-3xl font-extrabold text-foreground">
+          Hai, {fullName || email.split("@")[0]} 👋
+        </h1>
+        <p className="mt-1 text-sm text-muted-foreground">{email}</p>
       </div>
 
       <div className="mt-8 grid gap-4 sm:grid-cols-3">
