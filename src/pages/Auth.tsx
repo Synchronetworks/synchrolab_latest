@@ -58,8 +58,34 @@ const Auth = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+  const [forgotOpen, setForgotOpen] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState("");
+  const [sendingReset, setSendingReset] = useState(false);
   const { level, checks } = evaluatePassword(password);
   const confirmMismatch = mode === "signup" && confirmPassword.length > 0 && confirmPassword !== password;
+
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const email = forgotEmail.trim();
+    if (!email || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+      toast.error("Sila masukkan emel yang sah");
+      return;
+    }
+    setSendingReset(true);
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    setSendingReset(false);
+    if (error) {
+      toast.error("Gagal hantar emel", { description: error.message });
+      return;
+    }
+    toast.success("Pautan tetap semula password telah dihantar", {
+      description: "Sila semak peti masuk emel anda.",
+    });
+    setForgotOpen(false);
+    setForgotEmail("");
+  };
 
   const redirectAfterAuth = async (userId: string) => {
     const { data } = await supabase
