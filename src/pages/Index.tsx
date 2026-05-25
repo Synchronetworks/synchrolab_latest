@@ -1,8 +1,9 @@
 import { Link } from "react-router-dom";
 import { ArrowRight, Award, CalendarCheck, CheckCircle2, GraduationCap, Loader2, Quote, Shield, Sparkles } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { CourseCard } from "@/components/CourseCard";
-import { testimonials } from "@/data/catalog";
+import { supabase } from "@/integrations/supabase/client";
 import { useCourses, useFeaturedCourses } from "@/hooks/useCatalog";
 import heroImg from "@/assets/hero-classroom.jpg";
 import hrdcorpBadge from "@/assets/hrdcorp-badge.png";
@@ -18,6 +19,18 @@ const Index = () => {
   const { data: courses = [], isLoading } = useCourses();
   const { data: featuredFromAdmin = [] } = useFeaturedCourses();
   const featured = (featuredFromAdmin.length > 0 ? featuredFromAdmin : courses).slice(0, 4);
+  const { data: testimonials = [] } = useQuery({
+    queryKey: ["public-testimonials"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("testimonials")
+        .select("id, name, role, text, image_url")
+        .eq("is_active", true)
+        .order("sort_order", { ascending: true });
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
 
   return (
     <>
@@ -132,18 +145,24 @@ const Index = () => {
 
           <div className="mt-12 grid gap-6 md:grid-cols-3">
             {testimonials.map((t) => (
-              <div key={t.name} className="relative rounded-2xl border border-border bg-card p-7 shadow-soft">
+              <div key={t.id} className="relative rounded-2xl border border-border bg-card p-7 shadow-soft">
                 <Quote className="absolute right-6 top-6 h-8 w-8 text-accent/15" />
                 <p className="text-sm leading-relaxed text-foreground/80">"{t.text}"</p>
                 <div className="mt-6 flex items-center gap-3 border-t border-border pt-4">
-                  <img
-                    src={t.image}
-                    alt={t.name}
-                    loading="lazy"
-                    width={80}
-                    height={80}
-                    className="h-12 w-12 rounded-full object-cover ring-2 ring-accent/20"
-                  />
+                  {t.image_url ? (
+                    <img
+                      src={t.image_url}
+                      alt={t.name}
+                      loading="lazy"
+                      width={80}
+                      height={80}
+                      className="h-12 w-12 rounded-full object-cover ring-2 ring-accent/20"
+                    />
+                  ) : (
+                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-accent/10 text-sm font-semibold text-accent ring-2 ring-accent/20">
+                      {t.name.slice(0, 1)}
+                    </div>
+                  )}
                   <div>
                     <p className="font-semibold text-foreground">{t.name}</p>
                     <p className="text-xs text-muted-foreground">{t.role}</p>
@@ -151,6 +170,9 @@ const Index = () => {
                 </div>
               </div>
             ))}
+            {testimonials.length === 0 && (
+              <div className="md:col-span-3 text-center text-sm text-muted-foreground">Belum ada testimoni.</div>
+            )}
           </div>
         </div>
       </section>
