@@ -270,11 +270,13 @@ const Rooms = () => {
             </div>
             <div>
               <Label>E-mel</Label>
-              <Input required type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} className="mt-1.5" />
+              <Input required type="email" value={form.email} disabled={lockedEmail} readOnly={lockedEmail} onChange={(e) => setForm({ ...form, email: e.target.value })} className="mt-1.5" />
+              {lockedEmail && <p className="mt-1 text-xs text-muted-foreground">Kemas kini di Profil Saya</p>}
             </div>
             <div>
               <Label>Telefon</Label>
-              <Input required value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} className="mt-1.5" />
+              <Input required value={form.phone} disabled={lockedPhone} readOnly={lockedPhone} onChange={(e) => setForm({ ...form, phone: e.target.value })} className="mt-1.5" />
+              {lockedPhone && <p className="mt-1 text-xs text-muted-foreground">Kemas kini di Profil Saya</p>}
             </div>
             <div className="md:col-span-2">
               <Label>Nota tambahan</Label>
