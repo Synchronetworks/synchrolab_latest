@@ -23,7 +23,9 @@ async function verifyXSignature(
   const keys = Object.keys(fields)
     .filter((k) => k !== "x_signature")
     .sort();
-  const stringToSign = keys.map((k) => `${k}${fields[k]}`).join("|");
+  // Redirect signature format per Billplz spec: each pair is "billplz{key}{value}"
+  // joined by "|". Webhook uses a flat "{key}{value}" form — different!
+  const stringToSign = keys.map((k) => `billplz${k}${fields[k]}`).join("|");
   const enc = new TextEncoder();
   const key = await crypto.subtle.importKey(
     "raw",
