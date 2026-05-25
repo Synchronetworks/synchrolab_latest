@@ -451,6 +451,24 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      create_booking: {
+        Args: {
+          _booking_date_from?: string
+          _booking_date_to?: string
+          _company?: string
+          _course_id?: string
+          _customer_name: string
+          _email: string
+          _notes?: string
+          _num_pax: number
+          _phone: string
+          _room_id?: string
+          _slot_id?: string
+          _total_amount: number
+          _type: Database["public"]["Enums"]["booking_type"]
+        }
+        Returns: string
+      }
       generate_booking_ref: { Args: never; Returns: string }
       has_role: {
         Args: {

@@ -54,33 +54,27 @@ const Rooms = () => {
       return;
     }
     setSubmitting(true);
-    const { data: { session } } = await supabase.auth.getSession();
-    const { data, error } = await supabase
-      .from("bookings")
-      .insert({
-        type: "room",
-        room_id: parsed.data.room_id,
-        booking_date_from: parsed.data.date,
-        booking_date_to: parsed.data.date,
-        customer_name: parsed.data.customer_name,
-        email: parsed.data.email,
-        phone: parsed.data.phone,
-        num_pax: 1,
-        total_amount: total,
-        notes: buildNotes(),
-        user_id: session?.user?.id ?? null,
-      })
-      .select("ref_no")
-      .single();
+    const { data: ref, error } = await supabase.rpc("create_booking", {
+      _type: "room",
+      _customer_name: parsed.data.customer_name,
+      _email: parsed.data.email,
+      _phone: parsed.data.phone,
+      _num_pax: 1,
+      _total_amount: total,
+      _room_id: parsed.data.room_id,
+      _booking_date_from: parsed.data.date,
+      _booking_date_to: parsed.data.date,
+      _notes: buildNotes(),
+    });
     setSubmitting(false);
-    if (error) {
-      toast.error("Gagal menempah", { description: error.message });
+    if (error || !ref) {
+      toast.error("Gagal menempah", { description: error?.message ?? "Ralat tidak diketahui" });
       return;
     }
-    setRefNo(data.ref_no);
+    setRefNo(ref as string);
     setForm({ room_id: rooms[0]?.id ?? "", date: "", time: "", duration: 4, customer_name: "", email: "", phone: "", notes: "" });
     setSelectedAddons({});
-    toast.success("Tempahan diterima!", { description: `Rujukan: ${data.ref_no}` });
+    toast.success("Tempahan diterima!", { description: `Rujukan: ${ref}` });
   };
 
   const buildNotes = () => {
