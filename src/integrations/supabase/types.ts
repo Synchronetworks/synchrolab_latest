@@ -385,6 +385,9 @@ export type Database = {
       }
       profiles: {
         Row: {
+          age: number | null
+          avatar_url: string | null
+          company: string | null
           created_at: string
           full_name: string | null
           id: string
@@ -392,6 +395,9 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          age?: number | null
+          avatar_url?: string | null
+          company?: string | null
           created_at?: string
           full_name?: string | null
           id: string
@@ -399,6 +405,9 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          age?: number | null
+          avatar_url?: string | null
+          company?: string | null
           created_at?: string
           full_name?: string | null
           id?: string
@@ -754,6 +763,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      link_bookings_to_user: { Args: never; Returns: number }
       lookup_booking: {
         Args: { _email: string; _ref: string }
         Returns: {
