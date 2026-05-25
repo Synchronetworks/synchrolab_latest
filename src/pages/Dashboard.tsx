@@ -5,8 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { BookOpen, DoorOpen, LogOut, Calendar, Hash } from "lucide-react";
-import { toast } from "sonner";
+import { BookOpen, DoorOpen, Calendar, Hash } from "lucide-react";
 
 type Booking = {
   id: string;
@@ -113,12 +112,6 @@ const Dashboard = () => {
     };
     init();
   }, [navigate]);
-
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    toast.success("Berjaya log keluar");
-    navigate("/", { replace: true });
-  };
 
   const courseBookings = bookings.filter((b) => b.type === "course");
   const roomBookings = bookings.filter((b) => b.type === "room");
