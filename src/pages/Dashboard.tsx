@@ -5,7 +5,10 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { BookOpen, DoorOpen, Calendar, Hash } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { BookOpen, DoorOpen, Calendar, Hash, User, Save } from "lucide-react";
+import { toast } from "sonner";
 
 type Booking = {
   id: string;
@@ -56,6 +59,10 @@ const Dashboard = () => {
   const [email, setEmail] = useState<string>("");
   const [fullName, setFullName] = useState<string>("");
   const [bookings, setBookings] = useState<Booking[]>([]);
+  const [userId, setUserId] = useState<string>("");
+  const [phone, setPhone] = useState<string>("");
+  const [profileName, setProfileName] = useState<string>("");
+  const [savingProfile, setSavingProfile] = useState(false);
 
   useEffect(() => {
     const init = async () => {
@@ -65,9 +72,10 @@ const Dashboard = () => {
         return;
       }
       setEmail(session.user.email ?? "");
+      setUserId(session.user.id);
 
       const [{ data: profile }, { data: bks }] = await Promise.all([
-        supabase.from("profiles").select("full_name").eq("id", session.user.id).maybeSingle(),
+        supabase.from("profiles").select("full_name, phone").eq("id", session.user.id).maybeSingle(),
         supabase
           .from("bookings")
           .select("*")
@@ -76,6 +84,8 @@ const Dashboard = () => {
       ]);
 
       if (profile?.full_name) setFullName(profile.full_name);
+      setProfileName(profile?.full_name ?? "");
+      setPhone(profile?.phone ?? "");
 
       const rows = (bks ?? []) as Booking[];
       const courseIds = [...new Set(rows.filter((b) => b.course_id).map((b) => b.course_id!))];
