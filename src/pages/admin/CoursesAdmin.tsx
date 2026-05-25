@@ -444,6 +444,25 @@ function SlotsManager({ course, onClose }: { course: Course; onClose: () => void
   const [adding, setAdding] = useState(false);
   const [newSlot, setNewSlot] = useState({ date_label: "", time_label: "", seats_total: 20 });
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
+  const [startTime, setStartTime] = useState("");
+  const [endTime, setEndTime] = useState("");
+
+  const formatTime12 = (hhmm: string): string => {
+    if (!hhmm) return "";
+    const [hStr, mStr] = hhmm.split(":");
+    const h = Number(hStr);
+    const m = Number(mStr);
+    const period = h < 12 ? "pagi" : h < 19 ? "petang" : "malam";
+    const h12 = h % 12 === 0 ? 12 : h % 12;
+    return `${h12}:${String(m).padStart(2, "0")} ${period}`;
+  };
+
+  const buildTimeLabel = (start: string, end: string) => {
+    const s = formatTime12(start);
+    const e = formatTime12(end);
+    if (s && e) return `${s} - ${e}`;
+    return s || e;
+  };
 
   const formatDateRange = (range: DateRange | undefined): string => {
     if (!range?.from) return "";
@@ -495,6 +514,8 @@ function SlotsManager({ course, onClose }: { course: Course; onClose: () => void
       toast.success("Slot ditambah");
       setNewSlot({ date_label: "", time_label: "", seats_total: 20 });
       setDateRange(undefined);
+      setStartTime("");
+      setEndTime("");
       qc.invalidateQueries({ queryKey: ["admin-slots", course.id] });
     }
   };
@@ -580,7 +601,27 @@ function SlotsManager({ course, onClose }: { course: Course; onClose: () => void
                   />
                 </PopoverContent>
               </Popover>
-              <Input placeholder="cth: 9:00 pagi - 5:00 petang" value={newSlot.time_label} onChange={(e) => setNewSlot({ ...newSlot, time_label: e.target.value })} />
+              <div className="flex items-center gap-1">
+                <Input
+                  type="time"
+                  value={startTime}
+                  onChange={(e) => {
+                    const v = e.target.value;
+                    setStartTime(v);
+                    setNewSlot({ ...newSlot, time_label: buildTimeLabel(v, endTime) });
+                  }}
+                />
+                <span className="text-muted-foreground">-</span>
+                <Input
+                  type="time"
+                  value={endTime}
+                  onChange={(e) => {
+                    const v = e.target.value;
+                    setEndTime(v);
+                    setNewSlot({ ...newSlot, time_label: buildTimeLabel(startTime, v) });
+                  }}
+                />
+              </div>
               <Input type="number" min={1} placeholder="Tempat" value={newSlot.seats_total} onChange={(e) => setNewSlot({ ...newSlot, seats_total: Number(e.target.value) })} />
             </div>
             <Button onClick={addSlot} disabled={adding} variant="accent" size="sm" className="mt-3">
