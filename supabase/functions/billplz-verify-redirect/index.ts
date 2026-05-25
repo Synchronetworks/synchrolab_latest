@@ -15,17 +15,20 @@ const json = (body: unknown, status = 200) =>
     headers: { ...corsHeaders, "Content-Type": "application/json" },
   });
 
+// Billplz X-Signature for Redirect URL: HMAC-SHA256 over a FIXED subset of
+// fields prefixed with "billplz", joined as "billplz{key}{value}" by "|".
+// Per spec, ONLY id, paid, paid_at are signed — transaction_id/status excluded.
+const REDIRECT_SIGNED_KEYS = ["id", "paid", "paid_at"];
+
 async function verifyXSignature(
   fields: Record<string, string>,
   providedSignature: string,
   secret: string,
 ): Promise<boolean> {
-  const keys = Object.keys(fields)
-    .filter((k) => k !== "x_signature")
-    .sort();
-  // Redirect signature format per Billplz spec: each pair is "billplz{key}{value}"
-  // joined by "|". Webhook uses a flat "{key}{value}" form — different!
-  const stringToSign = keys.map((k) => `billplz${k}${fields[k]}`).join("|");
+  const keys = [...REDIRECT_SIGNED_KEYS].sort((a, b) =>
+    `billplz${a}`.toLowerCase().localeCompare(`billplz${b}`.toLowerCase()),
+  );
+  const stringToSign = keys.map((k) => `billplz${k}${fields[k] ?? ""}`).join("|");
   const enc = new TextEncoder();
   const key = await crypto.subtle.importKey(
     "raw",
