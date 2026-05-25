@@ -30,20 +30,31 @@ const CourseDetail = () => {
   const [open, setOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState<string | null>(null);
-  const [form, setForm] = useState({ customer_name: "", email: "", phone: "", company: "", num_pax: 1, notes: "" });
+  const [form, setForm] = useState({ customer_name: "", customer_age: "", email: "", phone: "", company: "", num_pax: 1, notes: "" });
   const [isParticipant, setIsParticipant] = useState(true);
   const [participants, setParticipants] = useState<{ name: string; age: string }[]>([]);
 
-  const extrasCount = Math.max(0, form.num_pax - (isParticipant ? 1 : 0));
+  const participantsCount = isParticipant ? form.num_pax : Math.max(0, form.num_pax);
 
   useEffect(() => {
     setParticipants((prev) => {
       const next = [...prev];
-      while (next.length < extrasCount) next.push({ name: "", age: "" });
-      next.length = extrasCount;
+      while (next.length < participantsCount) next.push({ name: "", age: "" });
+      next.length = participantsCount;
       return next;
     });
-  }, [extrasCount]);
+  }, [participantsCount]);
+
+  // Auto-sync first participant with booker when ticked
+  useEffect(() => {
+    if (!isParticipant || participants.length === 0) return;
+    const first = participants[0];
+    if (first.name !== form.customer_name || first.age !== form.customer_age) {
+      const next = [...participants];
+      next[0] = { name: form.customer_name, age: form.customer_age };
+      setParticipants(next);
+    }
+  }, [isParticipant, form.customer_name, form.customer_age, participants]);
 
   const course = data?.course;
   const slots = data?.slots ?? [];
