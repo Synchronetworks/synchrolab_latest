@@ -257,8 +257,8 @@ const Rooms = () => {
             </div>
             <div className="flex items-end">
               <div className="w-full rounded-lg border border-border bg-secondary/40 px-4 py-2.5">
-                <p className="text-xs text-muted-foreground">Anggaran jumlah {addonsTotal > 0 && <span className="text-foreground/60">(termasuk add-on RM{addonsTotal.toFixed(2)})</span>}</p>
-                <p className="font-display text-lg font-bold text-primary">RM{total.toLocaleString()}</p>
+                <p className="text-xs text-muted-foreground">Anggaran jumlah {addonsTotal > 0 && <span className="text-foreground/60">(termasuk add-on RM{addonsTotal.toFixed(2)})</span>}{promo && <span className="text-success"> • diskaun −RM{promo.discount.toLocaleString()}</span>}</p>
+                <p className="font-display text-lg font-bold text-primary">RM{finalTotal.toLocaleString()}</p>
               </div>
             </div>
 
@@ -316,6 +316,41 @@ const Rooms = () => {
             <div className="md:col-span-2">
               <Label>Nota tambahan</Label>
               <Textarea rows={3} value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} className="mt-1.5" placeholder="Cth: keperluan khas lain, susunan kerusi..." />
+            </div>
+            <div className="md:col-span-2 space-y-2 rounded-lg border border-border bg-secondary/40 px-4 py-3">
+              <div>
+                <Label className="text-xs">Kod Promo (pilihan)</Label>
+                <div className="mt-1.5 flex gap-2">
+                  <Input
+                    value={promoInput}
+                    onChange={(e) => setPromoInput(e.target.value.toUpperCase())}
+                    placeholder="cth: PROMO10"
+                    className="font-mono uppercase"
+                    disabled={!!promo}
+                  />
+                  {promo ? (
+                    <Button type="button" variant="outline" onClick={() => { setPromo(null); setPromoInput(""); }}>Buang</Button>
+                  ) : (
+                    <Button type="button" variant="outline" onClick={applyPromo} disabled={validatingPromo || !promoInput}>
+                      {validatingPromo ? "Menyemak..." : "Guna"}
+                    </Button>
+                  )}
+                </div>
+              </div>
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">Subjumlah</span>
+                <span>RM{total.toLocaleString()}</span>
+              </div>
+              {promo && (
+                <div className="flex items-center justify-between text-sm text-success">
+                  <span>Diskaun ({promo.code})</span>
+                  <span>− RM{promo.discount.toLocaleString()}</span>
+                </div>
+              )}
+              <div className="flex items-center justify-between border-t border-border pt-2">
+                <span className="text-sm text-muted-foreground">Jumlah perlu bayar</span>
+                <span className="font-display text-xl font-bold text-primary">RM{finalTotal.toLocaleString()}</span>
+              </div>
             </div>
             <Button type="submit" variant="accent" size="lg" className="md:col-span-2" disabled={submitting}>
               {submitting ? "Memproses..." : "Hantar Permohonan Tempahan"}
