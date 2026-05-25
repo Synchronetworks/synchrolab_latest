@@ -353,8 +353,18 @@ function CourseForm({ initial, isNew, onClose, onSaved }: { initial: Course; isN
               </select>
             </div>
             <div>
-              <Label>Tempoh *</Label>
-              <Input placeholder="cth: 2 hari" value={form.duration} onChange={(e) => setForm({ ...form, duration: e.target.value })} />
+              <Label>Tempoh (hari) *</Label>
+              <Input
+                type="number"
+                min={1}
+                step={1}
+                placeholder="cth: 2"
+                value={form.duration.replace(/\D/g, "")}
+                onChange={(e) => {
+                  const n = e.target.value.replace(/\D/g, "");
+                  setForm({ ...form, duration: n ? `${n} hari` : "" });
+                }}
+              />
             </div>
             <div>
               <Label>Status</Label>
