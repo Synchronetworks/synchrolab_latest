@@ -19,6 +19,18 @@ const Index = () => {
   const { data: courses = [], isLoading } = useCourses();
   const { data: featuredFromAdmin = [] } = useFeaturedCourses();
   const featured = (featuredFromAdmin.length > 0 ? featuredFromAdmin : courses).slice(0, 4);
+  const { data: testimonials = [] } = useQuery({
+    queryKey: ["public-testimonials"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("testimonials")
+        .select("id, name, role, text, image_url")
+        .eq("is_active", true)
+        .order("sort_order", { ascending: true });
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
 
   return (
     <>
