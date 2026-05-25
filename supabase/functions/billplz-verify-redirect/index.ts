@@ -15,20 +15,18 @@ const json = (body: unknown, status = 200) =>
     headers: { ...corsHeaders, "Content-Type": "application/json" },
   });
 
-// Billplz X-Signature for Redirect URL: HMAC-SHA256 over a FIXED subset of
-// fields prefixed with "billplz", joined as "billplz{key}{value}" by "|".
-// Per spec, ONLY id, paid, paid_at are signed — transaction_id/status excluded.
-const REDIRECT_SIGNED_KEYS = ["id", "paid", "paid_at"];
-
 async function verifyXSignature(
   fields: Record<string, string>,
   providedSignature: string,
   secret: string,
 ): Promise<boolean> {
-  const keys = [...REDIRECT_SIGNED_KEYS].sort((a, b) =>
-    `billplz${a}`.toLowerCase().localeCompare(`billplz${b}`.toLowerCase()),
-  );
-  const stringToSign = keys.map((k) => `billplz${k}${fields[k] ?? ""}`).join("|");
+  // Billplz redirect signs every billplz[...] query parameter except x_signature,
+  // sorted by the constructed source string (case-insensitive).
+  const stringToSign = Object.entries(fields)
+    .filter(([k]) => k.toLowerCase() !== "x_signature")
+    .map(([k, v]) => `billplz${k}${v ?? ""}`)
+    .sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()))
+    .join("|");
   const enc = new TextEncoder();
   const key = await crypto.subtle.importKey(
     "raw",
@@ -50,29 +48,46 @@ Deno.serve(async (req) => {
 
   try {
     const xSignatureKey = Deno.env.get("BILLPLZ_X_SIGNATURE_KEY");
-    if (!xSignatureKey) return json({ error: "misconfigured" }, 500);
+    const apiKey = Deno.env.get("BILLPLZ_API_KEY");
+    const mode = (Deno.env.get("BILLPLZ_MODE") ?? "sandbox").toLowerCase();
+    const supabaseUrl = Deno.env.get("SUPABASE_URL");
+    const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+    if (!xSignatureKey || !apiKey || !supabaseUrl || !serviceKey) {
+      return json({ error: "misconfigured" }, 500);
+    }
 
     const body = await req.json();
     const fields = (body.fields ?? {}) as Record<string, string>;
     const sig = fields.x_signature ?? "";
 
     const valid = await verifyXSignature(fields, sig, xSignatureKey);
-    if (!valid) return json({ valid: false, error: "Invalid signature" }, 403);
-
-    const ref = fields.reference_1 ?? "";
-    if (!ref) return json({ valid: false, error: "Missing ref" }, 400);
+    if (!valid) return json({ valid: false, error: "Invalid signature" });
 
     const paid = (fields.paid ?? "false").toLowerCase() === "true";
-    const billId = fields.id ?? null;
+    const billId = fields.id ?? "";
+    if (!billId) return json({ valid: false, error: "Missing bill ID" });
 
-    const admin = createClient(
-      Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
-    );
+    const admin = createClient(supabaseUrl, serviceKey);
+
+    const baseUrl =
+      mode === "production"
+        ? "https://www.billplz.com/api/v3"
+        : "https://www.billplz-sandbox.com/api/v3";
+    const billRes = await fetch(`${baseUrl}/bills/${encodeURIComponent(billId)}`, {
+      headers: { Authorization: `Basic ${btoa(apiKey + ":")}` },
+    });
+    const billData = await billRes.json().catch(() => ({}));
+    if (!billRes.ok) {
+      console.error("Billplz bill lookup error", billData);
+      return json({ valid: false, error: "Gagal menyemak bil Billplz" });
+    }
+
+    const ref = String(billData.reference_1 ?? "").trim();
+    if (!ref) return json({ valid: false, error: "Missing ref" });
 
     // Fallback: if webhook hasn't fired yet, update the booking now since
     // signature is verified. Idempotent (safe to call repeatedly).
-    if (paid) {
+    if (paid || billData.paid === true) {
       const { error: rpcErr } = await admin.rpc("update_booking_payment", {
         _ref_no: ref,
         _bill_id: billId,
@@ -88,11 +103,11 @@ Deno.serve(async (req) => {
       .maybeSingle();
 
     if (error) return json({ error: error.message }, 500);
-    if (!data) return json({ valid: false, error: "Not found" }, 404);
+    if (!data) return json({ valid: false, error: "Not found" });
 
     return json({
       valid: true,
-      paid: (fields.paid ?? "false").toLowerCase() === "true",
+      paid: paid || billData.paid === true,
       booking: data,
     });
   } catch (e) {
