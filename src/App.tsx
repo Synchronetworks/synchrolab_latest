@@ -27,6 +27,7 @@ import AddonsAdmin from "./pages/admin/AddonsAdmin.tsx";
 import AccountAdmin from "./pages/admin/AccountAdmin.tsx";
 import PaymentsAdmin from "./pages/admin/PaymentsAdmin.tsx";
 import PromoCodesAdmin from "./pages/admin/PromoCodesAdmin.tsx";
+import TestimonialsAdmin from "./pages/admin/TestimonialsAdmin.tsx";
 import PaymentReturn from "./pages/PaymentReturn.tsx";
 import ResetPassword from "./pages/ResetPassword.tsx";
 import { Navigate } from "react-router-dom";
