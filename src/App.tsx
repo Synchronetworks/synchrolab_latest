@@ -14,6 +14,7 @@ import HostCourse from "./pages/HostCourse.tsx";
 import ListVenue from "./pages/ListVenue.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import Auth from "./pages/Auth.tsx";
+import Dashboard from "./pages/Dashboard.tsx";
 import AdminLayout from "./components/admin/AdminLayout.tsx";
 import HostRequestsAdmin from "./pages/admin/HostRequestsAdmin.tsx";
 import VenueListingsAdmin from "./pages/admin/VenueListingsAdmin.tsx";
@@ -46,6 +47,9 @@ const App = () => (
             <Route path="/hubungi" element={<Contact />} />
           </Route>
           <Route path="/auth" element={<Auth />} />
+          <Route element={<Layout />}>
+            <Route path="/dashboard" element={<Dashboard />} />
+          </Route>
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<Navigate to="/admin/host-requests" replace />} />
             <Route path="host-requests" element={<HostRequestsAdmin />} />
