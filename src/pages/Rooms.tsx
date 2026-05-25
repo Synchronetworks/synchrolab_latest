@@ -54,7 +54,7 @@ const Rooms = () => {
       return;
     }
     setSubmitting(true);
-    const { data: user } = await supabase.auth.getUser();
+    const { data: { session } } = await supabase.auth.getSession();
     const { data, error } = await supabase
       .from("bookings")
       .insert({
@@ -68,7 +68,7 @@ const Rooms = () => {
         num_pax: 1,
         total_amount: total,
         notes: buildNotes(),
-        user_id: user.user?.id ?? null,
+        user_id: session?.user?.id ?? null,
       })
       .select("ref_no")
       .single();
