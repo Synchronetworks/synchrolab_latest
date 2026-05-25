@@ -297,6 +297,42 @@ const CourseDetail = () => {
                   <Input required type="number" min={1} max={selectedSlot?.seats_left ?? 50} className="mt-1.5" value={form.num_pax} onChange={(e) => setForm({ ...form, num_pax: Number(e.target.value) })} />
                 </div>
               </div>
+
+              {extrasCount > 0 && (
+                <div className="rounded-lg border border-dashed border-border bg-secondary/30 p-3">
+                  <p className="mb-2 text-sm font-medium text-foreground">
+                    Maklumat peserta tambahan ({extrasCount})
+                  </p>
+                  <div className="space-y-2">
+                    {participants.map((p, i) => (
+                      <div key={i} className="grid grid-cols-[1fr_90px] gap-2">
+                        <Input
+                          placeholder={`Nama peserta ${i + 1}`}
+                          maxLength={200}
+                          value={p.name}
+                          onChange={(e) => {
+                            const next = [...participants];
+                            next[i] = { ...next[i], name: e.target.value };
+                            setParticipants(next);
+                          }}
+                        />
+                        <Input
+                          type="number"
+                          min={1}
+                          max={120}
+                          placeholder="Umur"
+                          value={p.age}
+                          onChange={(e) => {
+                            const next = [...participants];
+                            next[i] = { ...next[i], age: e.target.value };
+                            setParticipants(next);
+                          }}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <Label>E-mel *</Label>
