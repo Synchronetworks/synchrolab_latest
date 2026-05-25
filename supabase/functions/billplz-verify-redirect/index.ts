@@ -57,10 +57,25 @@ Deno.serve(async (req) => {
     const ref = fields.reference_1 ?? "";
     if (!ref) return json({ valid: false, error: "Missing ref" }, 400);
 
+    const paid = (fields.paid ?? "false").toLowerCase() === "true";
+    const billId = fields.id ?? null;
+
     const admin = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
     );
+
+    // Fallback: if webhook hasn't fired yet, update the booking now since
+    // signature is verified. Idempotent (safe to call repeatedly).
+    if (paid) {
+      const { error: rpcErr } = await admin.rpc("update_booking_payment", {
+        _ref_no: ref,
+        _bill_id: billId,
+        _paid: true,
+      });
+      if (rpcErr) console.error("update_booking_payment error", rpcErr);
+    }
+
     const { data, error } = await admin
       .from("bookings")
       .select("ref_no, customer_name, total_amount, payment_status, booking_status, type")
