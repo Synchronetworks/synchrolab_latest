@@ -125,17 +125,11 @@ const Dashboard = () => {
 
   return (
     <div className="container py-10">
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="font-display text-3xl font-extrabold text-foreground">
-            Hai, {fullName || email.split("@")[0]} 👋
-          </h1>
-          <p className="mt-1 text-sm text-muted-foreground">{email}</p>
-        </div>
-        <Button variant="outline" onClick={handleLogout}>
-          <LogOut className="h-4 w-4" />
-          Log Keluar
-        </Button>
+      <div>
+        <h1 className="font-display text-3xl font-extrabold text-foreground">
+          Hai, {fullName || email.split("@")[0]} 👋
+        </h1>
+        <p className="mt-1 text-sm text-muted-foreground">{email}</p>
       </div>
 
       <div className="mt-8 grid gap-4 sm:grid-cols-3">
