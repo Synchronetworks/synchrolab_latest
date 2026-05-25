@@ -91,7 +91,10 @@ const CourseDetail = () => {
         company: parsed.data.company || null,
         num_pax: parsed.data.num_pax,
         total_amount: total,
-        notes: parsed.data.notes || null,
+        notes: [
+          isParticipant ? "Penempah juga adalah peserta" : "Penempah BUKAN peserta",
+          parsed.data.notes,
+        ].filter(Boolean).join(" • ") || null,
         user_id: session?.user?.id ?? null,
       })
       .select("ref_no")
