@@ -45,6 +45,25 @@ const CourseDetail = () => {
     });
   }, [participantsCount]);
 
+  // Prefill from logged-in user's profile
+  useEffect(() => {
+    (async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("full_name, phone")
+        .eq("id", session.user.id)
+        .maybeSingle();
+      setForm((f) => ({
+        ...f,
+        customer_name: f.customer_name || profile?.full_name || "",
+        email: f.email || session.user.email || "",
+        phone: f.phone || profile?.phone || "",
+      }));
+    })();
+  }, []);
+
   // Auto-sync first participant with booker when ticked
   useEffect(() => {
     if (!isParticipant || participants.length === 0) return;
