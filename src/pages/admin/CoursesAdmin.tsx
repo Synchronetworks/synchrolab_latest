@@ -444,6 +444,25 @@ function SlotsManager({ course, onClose }: { course: Course; onClose: () => void
   const [adding, setAdding] = useState(false);
   const [newSlot, setNewSlot] = useState({ date_label: "", time_label: "", seats_total: 20 });
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
+  const [startTime, setStartTime] = useState("");
+  const [endTime, setEndTime] = useState("");
+
+  const formatTime12 = (hhmm: string): string => {
+    if (!hhmm) return "";
+    const [hStr, mStr] = hhmm.split(":");
+    const h = Number(hStr);
+    const m = Number(mStr);
+    const period = h < 12 ? "pagi" : h < 19 ? "petang" : "malam";
+    const h12 = h % 12 === 0 ? 12 : h % 12;
+    return `${h12}:${String(m).padStart(2, "0")} ${period}`;
+  };
+
+  const buildTimeLabel = (start: string, end: string) => {
+    const s = formatTime12(start);
+    const e = formatTime12(end);
+    if (s && e) return `${s} - ${e}`;
+    return s || e;
+  };
 
   const formatDateRange = (range: DateRange | undefined): string => {
     if (!range?.from) return "";
