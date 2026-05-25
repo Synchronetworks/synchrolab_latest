@@ -64,7 +64,8 @@ Deno.serve(async (req) => {
     if (!valid) return json({ valid: false, error: "Invalid signature" });
 
     const paid = (fields.paid ?? "false").toLowerCase() === "true";
-    const billId = fields.id ?? null;
+    const billId = fields.id ?? "";
+    if (!billId) return json({ valid: false, error: "Missing bill ID" });
 
     const admin = createClient(supabaseUrl, serviceKey);
 
