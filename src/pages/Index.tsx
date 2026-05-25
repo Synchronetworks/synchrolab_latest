@@ -1,8 +1,9 @@
 import { Link } from "react-router-dom";
 import { ArrowRight, Award, CalendarCheck, CheckCircle2, GraduationCap, Loader2, Quote, Shield, Sparkles } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { CourseCard } from "@/components/CourseCard";
-import { testimonials } from "@/data/catalog";
+import { supabase } from "@/integrations/supabase/client";
 import { useCourses, useFeaturedCourses } from "@/hooks/useCatalog";
 import heroImg from "@/assets/hero-classroom.jpg";
 import hrdcorpBadge from "@/assets/hrdcorp-badge.png";
