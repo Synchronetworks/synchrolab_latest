@@ -261,6 +261,16 @@ const Auth = () => {
           </Button>
         </form>
 
+        {mode === "login" && (
+          <button
+            type="button"
+            onClick={() => setForgotOpen(true)}
+            className="mt-3 w-full text-center text-sm text-accent hover:underline"
+          >
+            Lupa password?
+          </button>
+        )}
+
         <button
           type="button"
           onClick={() => setMode(mode === "login" ? "signup" : "login")}
@@ -269,6 +279,39 @@ const Auth = () => {
           {mode === "login" ? "Belum ada akaun? Daftar" : "Sudah ada akaun? Log masuk"}
         </button>
       </div>
+
+      {forgotOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => setForgotOpen(false)}>
+          <div className="w-full max-w-md rounded-2xl border border-border bg-card p-6 shadow-elegant" onClick={(e) => e.stopPropagation()}>
+            <h2 className="font-display text-xl font-bold">Lupa Password</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Masukkan emel akaun anda. Kami akan hantar pautan untuk tetap semula password.
+            </p>
+            <form onSubmit={handleForgotPassword} className="mt-4 space-y-3">
+              <div>
+                <Label htmlFor="forgot-email">Emel</Label>
+                <Input
+                  id="forgot-email"
+                  type="email"
+                  required
+                  className="mt-1.5"
+                  value={forgotEmail}
+                  onChange={(e) => setForgotEmail(e.target.value)}
+                  autoFocus
+                />
+              </div>
+              <div className="flex gap-2">
+                <Button type="button" variant="outline" className="flex-1" onClick={() => setForgotOpen(false)}>
+                  Batal
+                </Button>
+                <Button type="submit" className="flex-1" disabled={sendingReset}>
+                  {sendingReset ? "Menghantar..." : "Hantar Pautan"}
+                </Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
