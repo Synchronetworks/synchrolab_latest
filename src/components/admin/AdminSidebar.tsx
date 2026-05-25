@@ -1,4 +1,4 @@
-import { Building2, CalendarCheck, Mail, MapPin, LogOut, Users, GraduationCap, DoorOpen, ListPlus, UserCog, CreditCard, Tag } from "lucide-react";
+import { Building2, CalendarCheck, Mail, MapPin, LogOut, Users, GraduationCap, DoorOpen, ListPlus, UserCog, CreditCard, Tag, Quote } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { NavLink } from "@/components/NavLink";
 import {
