@@ -23,6 +23,7 @@ const items = [
   { title: "Bilik", url: "/admin/rooms", icon: DoorOpen },
   { title: "Add-on Bilik", url: "/admin/addons", icon: ListPlus },
   { title: "Kod Promo", url: "/admin/promo-codes", icon: Tag },
+  { title: "Testimoni", url: "/admin/testimonials", icon: Quote },
   { title: "Pengguna", url: "/admin/users", icon: Users },
   { title: "Anjur Kursus", url: "/admin/host-requests", icon: Building2 },
   { title: "Senarai Tempat", url: "/admin/venue-listings", icon: MapPin },
