@@ -16,6 +16,7 @@ export type Database = {
     Tables: {
       bookings: {
         Row: {
+          billplz_bill_id: string | null
           booking_date_from: string | null
           booking_date_to: string | null
           booking_status: Database["public"]["Enums"]["booking_status"]
@@ -28,6 +29,7 @@ export type Database = {
           notes: string | null
           num_pax: number
           payment_status: Database["public"]["Enums"]["payment_status"]
+          payment_url: string | null
           phone: string
           ref_no: string
           room_id: string | null
@@ -38,6 +40,7 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          billplz_bill_id?: string | null
           booking_date_from?: string | null
           booking_date_to?: string | null
           booking_status?: Database["public"]["Enums"]["booking_status"]
@@ -50,6 +53,7 @@ export type Database = {
           notes?: string | null
           num_pax?: number
           payment_status?: Database["public"]["Enums"]["payment_status"]
+          payment_url?: string | null
           phone: string
           ref_no?: string
           room_id?: string | null
@@ -60,6 +64,7 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          billplz_bill_id?: string | null
           booking_date_from?: string | null
           booking_date_to?: string | null
           booking_status?: Database["public"]["Enums"]["booking_status"]
@@ -72,6 +77,7 @@ export type Database = {
           notes?: string | null
           num_pax?: number
           payment_status?: Database["public"]["Enums"]["payment_status"]
+          payment_url?: string | null
           phone?: string
           ref_no?: string
           room_id?: string | null
@@ -451,6 +457,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      attach_billplz_to_booking: {
+        Args: { _bill_id: string; _payment_url: string; _ref_no: string }
+        Returns: undefined
+      }
       create_booking: {
         Args: {
           _booking_date_from?: string
@@ -495,6 +505,10 @@ export type Database = {
           total_amount: number
           type: Database["public"]["Enums"]["booking_type"]
         }[]
+      }
+      update_booking_payment: {
+        Args: { _bill_id: string; _paid: boolean; _ref_no: string }
+        Returns: undefined
       }
     }
     Enums: {
