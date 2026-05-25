@@ -297,7 +297,7 @@ const CourseDetail = () => {
                   ))}
                 </select>
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-[1fr_80px_120px] gap-3">
                 <div>
                   <Label>Nama penuh *</Label>
                   <Input required className="mt-1.5" value={form.customer_name} onChange={(e) => setForm({ ...form, customer_name: e.target.value })} />
@@ -310,10 +310,55 @@ const CourseDetail = () => {
                   </label>
                 </div>
                 <div>
+                  <Label>Umur *</Label>
+                  <Input required type="number" min={1} max={120} className="mt-1.5" value={form.customer_age} onChange={(e) => setForm({ ...form, customer_age: e.target.value })} />
+                </div>
+                <div>
                   <Label>Bil. peserta *</Label>
                   <Input required type="number" min={1} max={selectedSlot?.seats_left ?? 50} className="mt-1.5" value={form.num_pax} onChange={(e) => setForm({ ...form, num_pax: Number(e.target.value) })} />
                 </div>
               </div>
+
+              {participantsCount > 0 && (
+                <div className="rounded-lg border border-dashed border-border bg-secondary/30 p-3">
+                  <p className="mb-2 text-sm font-medium text-foreground">
+                    Maklumat peserta ({participantsCount})
+                  </p>
+                  <div className="space-y-2">
+                    {participants.map((p, i) => {
+                      const isBooker = isParticipant && i === 0;
+                      return (
+                        <div key={i} className="grid grid-cols-[1fr_90px] gap-2">
+                          <Input
+                            placeholder={`Nama peserta ${i + 1}`}
+                            maxLength={200}
+                            value={p.name}
+                            disabled={isBooker}
+                            onChange={(e) => {
+                              const next = [...participants];
+                              next[i] = { ...next[i], name: e.target.value };
+                              setParticipants(next);
+                            }}
+                          />
+                          <Input
+                            type="number"
+                            min={1}
+                            max={120}
+                            placeholder="Umur"
+                            value={p.age}
+                            disabled={isBooker}
+                            onChange={(e) => {
+                              const next = [...participants];
+                              next[i] = { ...next[i], age: e.target.value };
+                              setParticipants(next);
+                            }}
+                          />
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
 
               {extrasCount > 0 && (
                 <div className="rounded-lg border border-dashed border-border bg-secondary/30 p-3">
