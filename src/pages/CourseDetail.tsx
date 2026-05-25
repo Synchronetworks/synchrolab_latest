@@ -124,10 +124,10 @@ const CourseDetail = () => {
                 <span className="inline-flex items-center gap-2"><Award className="h-4 w-4 text-accent" /> Sijil disediakan</span>
               </div>
             </div>
-            {course.image_url && (
+            {course.image && (
               <div className="overflow-hidden rounded-2xl border border-white/10 shadow-elegant">
                 <img
-                  src={course.image_url}
+                  src={course.image}
                   alt={course.title}
                   loading="lazy"
                   className="aspect-[4/3] h-full w-full object-cover"
