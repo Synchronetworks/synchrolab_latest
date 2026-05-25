@@ -29,6 +29,9 @@ const Rooms = () => {
   const [refNo, setRefNo] = useState<string | null>(null);
   const [lockedEmail, setLockedEmail] = useState(false);
   const [lockedPhone, setLockedPhone] = useState(false);
+  const [promoInput, setPromoInput] = useState("");
+  const [promo, setPromo] = useState<{ code: string; discount: number } | null>(null);
+  const [validatingPromo, setValidatingPromo] = useState(false);
 
   useEffect(() => {
     if (!form.room_id && rooms.length > 0) setForm((f) => ({ ...f, room_id: rooms[0].id }));
@@ -70,6 +73,37 @@ const Rooms = () => {
   }, [addons, selectedAddons]);
 
   const total = baseTotal + addonsTotal;
+  const finalTotal = Math.max(0, total - (promo?.discount ?? 0));
+
+  useEffect(() => {
+    if (promo) setPromo(null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [total]);
+
+  const applyPromo = async () => {
+    const code = promoInput.trim();
+    if (!code) return;
+    if (!form.email) {
+      toast.error("Sila isi e-mel dahulu");
+      return;
+    }
+    setValidatingPromo(true);
+    const { data, error } = await supabase.rpc("validate_promo_code", {
+      _code: code,
+      _email: form.email,
+      _subtotal: total,
+      _booking_type: "room",
+    });
+    setValidatingPromo(false);
+    const row = Array.isArray(data) ? data[0] : data;
+    if (error || !row?.valid) {
+      setPromo(null);
+      toast.error(row?.message || error?.message || "Kod promo tidak sah");
+      return;
+    }
+    setPromo({ code: row.code, discount: Number(row.discount) });
+    toast.success(`Diskaun RM${Number(row.discount).toLocaleString()} digunakan`);
+  };
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -90,6 +124,7 @@ const Rooms = () => {
       _booking_date_from: parsed.data.date,
       _booking_date_to: parsed.data.date,
       _notes: buildNotes(),
+      _promo_code: promo?.code ?? null,
     });
     if (error || !ref) {
       setSubmitting(false);
