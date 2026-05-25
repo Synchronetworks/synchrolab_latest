@@ -65,7 +65,14 @@ const Dashboard = () => {
   const [userId, setUserId] = useState<string>("");
   const [phone, setPhone] = useState<string>("");
   const [profileName, setProfileName] = useState<string>("");
+  const [age, setAge] = useState<string>("");
+  const [company, setCompany] = useState<string>("");
+  const [avatarUrl, setAvatarUrl] = useState<string>("");
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [savingProfile, setSavingProfile] = useState(false);
+  const [sendingReset, setSendingReset] = useState(false);
+  const [linkingBookings, setLinkingBookings] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const init = async () => {
