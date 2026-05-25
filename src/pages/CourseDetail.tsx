@@ -30,20 +30,31 @@ const CourseDetail = () => {
   const [open, setOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState<string | null>(null);
-  const [form, setForm] = useState({ customer_name: "", email: "", phone: "", company: "", num_pax: 1, notes: "" });
+  const [form, setForm] = useState({ customer_name: "", customer_age: "", email: "", phone: "", company: "", num_pax: 1, notes: "" });
   const [isParticipant, setIsParticipant] = useState(true);
   const [participants, setParticipants] = useState<{ name: string; age: string }[]>([]);
 
-  const extrasCount = Math.max(0, form.num_pax - (isParticipant ? 1 : 0));
+  const participantsCount = isParticipant ? form.num_pax : Math.max(0, form.num_pax);
 
   useEffect(() => {
     setParticipants((prev) => {
       const next = [...prev];
-      while (next.length < extrasCount) next.push({ name: "", age: "" });
-      next.length = extrasCount;
+      while (next.length < participantsCount) next.push({ name: "", age: "" });
+      next.length = participantsCount;
       return next;
     });
-  }, [extrasCount]);
+  }, [participantsCount]);
+
+  // Auto-sync first participant with booker when ticked
+  useEffect(() => {
+    if (!isParticipant || participants.length === 0) return;
+    const first = participants[0];
+    if (first.name !== form.customer_name || first.age !== form.customer_age) {
+      const next = [...participants];
+      next[0] = { name: form.customer_name, age: form.customer_age };
+      setParticipants(next);
+    }
+  }, [isParticipant, form.customer_name, form.customer_age, participants]);
 
   const course = data?.course;
   const slots = data?.slots ?? [];
@@ -123,7 +134,7 @@ const CourseDetail = () => {
       return;
     }
     setSuccess(inserted.ref_no);
-    setForm({ customer_name: "", email: "", phone: "", company: "", num_pax: 1, notes: "" });
+    setForm({ customer_name: "", customer_age: "", email: "", phone: "", company: "", num_pax: 1, notes: "" });
   };
 
   return (
@@ -286,7 +297,7 @@ const CourseDetail = () => {
                   ))}
                 </select>
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-[1fr_80px_120px] gap-3">
                 <div>
                   <Label>Nama penuh *</Label>
                   <Input required className="mt-1.5" value={form.customer_name} onChange={(e) => setForm({ ...form, customer_name: e.target.value })} />
@@ -299,43 +310,52 @@ const CourseDetail = () => {
                   </label>
                 </div>
                 <div>
+                  <Label>Umur *</Label>
+                  <Input required type="number" min={1} max={120} className="mt-1.5" value={form.customer_age} onChange={(e) => setForm({ ...form, customer_age: e.target.value })} />
+                </div>
+                <div>
                   <Label>Bil. peserta *</Label>
                   <Input required type="number" min={1} max={selectedSlot?.seats_left ?? 50} className="mt-1.5" value={form.num_pax} onChange={(e) => setForm({ ...form, num_pax: Number(e.target.value) })} />
                 </div>
               </div>
 
-              {extrasCount > 0 && (
+              {participantsCount > 0 && (
                 <div className="rounded-lg border border-dashed border-border bg-secondary/30 p-3">
                   <p className="mb-2 text-sm font-medium text-foreground">
-                    Maklumat peserta tambahan ({extrasCount})
+                    Maklumat peserta ({participantsCount})
                   </p>
                   <div className="space-y-2">
-                    {participants.map((p, i) => (
-                      <div key={i} className="grid grid-cols-[1fr_90px] gap-2">
-                        <Input
-                          placeholder={`Nama peserta ${i + 1}`}
-                          maxLength={200}
-                          value={p.name}
-                          onChange={(e) => {
-                            const next = [...participants];
-                            next[i] = { ...next[i], name: e.target.value };
-                            setParticipants(next);
-                          }}
-                        />
-                        <Input
-                          type="number"
-                          min={1}
-                          max={120}
-                          placeholder="Umur"
-                          value={p.age}
-                          onChange={(e) => {
-                            const next = [...participants];
-                            next[i] = { ...next[i], age: e.target.value };
-                            setParticipants(next);
-                          }}
-                        />
-                      </div>
-                    ))}
+                    {participants.map((p, i) => {
+                      const isBooker = isParticipant && i === 0;
+                      return (
+                        <div key={i} className="grid grid-cols-[1fr_90px] gap-2">
+                          <Input
+                            placeholder={`Nama peserta ${i + 1}`}
+                            maxLength={200}
+                            value={p.name}
+                            disabled={isBooker}
+                            onChange={(e) => {
+                              const next = [...participants];
+                              next[i] = { ...next[i], name: e.target.value };
+                              setParticipants(next);
+                            }}
+                          />
+                          <Input
+                            type="number"
+                            min={1}
+                            max={120}
+                            placeholder="Umur"
+                            value={p.age}
+                            disabled={isBooker}
+                            onChange={(e) => {
+                              const next = [...participants];
+                              next[i] = { ...next[i], age: e.target.value };
+                              setParticipants(next);
+                            }}
+                          />
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               )}
