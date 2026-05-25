@@ -85,7 +85,7 @@ const Dashboard = () => {
       setUserId(session.user.id);
 
       const [{ data: profile }, { data: bks }] = await Promise.all([
-        supabase.from("profiles").select("full_name, phone").eq("id", session.user.id).maybeSingle(),
+        supabase.from("profiles").select("full_name, phone, avatar_url, age, company").eq("id", session.user.id).maybeSingle(),
         supabase
           .from("bookings")
           .select("*")
@@ -96,6 +96,9 @@ const Dashboard = () => {
       if (profile?.full_name) setFullName(profile.full_name);
       setProfileName(profile?.full_name ?? "");
       setPhone(profile?.phone ?? "");
+      setAvatarUrl((profile as any)?.avatar_url ?? "");
+      setAge((profile as any)?.age != null ? String((profile as any).age) : "");
+      setCompany((profile as any)?.company ?? "");
 
       const rows = (bks ?? []) as Booking[];
       const courseIds = [...new Set(rows.filter((b) => b.course_id).map((b) => b.course_id!))];
