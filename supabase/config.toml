@@ -1,1 +1,10 @@
 project_id = "mvdlhfkqzswfponiajsk"
+
+[functions.billplz-webhook]
+verify_jwt = false
+
+[functions.create-billplz-bill]
+verify_jwt = false
+
+[functions.billplz-verify-redirect]
+verify_jwt = false
