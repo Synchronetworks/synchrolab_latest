@@ -50,8 +50,8 @@ const Contact = () => {
           <div className="space-y-4">
             {[
               { icon: MapPin, title: "Lokasi", lines: ["Synchronetwork Sdn. Bhd. (1194790-K)", "79A, Jalan Nova U5/N, Subang Bestari", "Sek. U5, 40150 Shah Alam, Selangor"] },
-              { icon: Mail, title: "E-mel", lines: ["booking@synchrolab.my", "info@synchronetwork.my"] },
-              { icon: Phone, title: "Telefon", lines: ["+603-1234 5678", "Isnin – Jumaat, 9am – 6pm"] },
+              { icon: Mail, title: "E-mel", lines: ["salam@synchronet.com.my"] },
+              { icon: Phone, title: "Telefon", lines: ["+60 10-584 7675", "Isnin – Jumaat, 9am – 6pm"] },
             ].map((c) => (
               <div key={c.title} className="flex gap-4 rounded-2xl border border-border bg-card p-5">
                 <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-accent shadow-glow">
