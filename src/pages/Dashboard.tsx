@@ -8,8 +8,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { BookOpen, DoorOpen, Calendar, Hash, User, Save, KeyRound, Camera, Link2 } from "lucide-react";
+import { BookOpen, DoorOpen, Calendar, Hash, User, Save, KeyRound, Camera, Link2, FileText } from "lucide-react";
 import { toast } from "sonner";
+import jsPDF from "jspdf";
 
 type Booking = {
   id: string;
