@@ -443,6 +443,25 @@ function SlotsManager({ course, onClose }: { course: Course; onClose: () => void
   const qc = useQueryClient();
   const [adding, setAdding] = useState(false);
   const [newSlot, setNewSlot] = useState({ date_label: "", time_label: "", seats_total: 20 });
+  const [dateRange, setDateRange] = useState<DateRange | undefined>();
+
+  const formatDateRange = (range: DateRange | undefined): string => {
+    if (!range?.from) return "";
+    const from = range.from;
+    const to = range.to;
+    if (!to || from.getTime() === to.getTime()) {
+      return format(from, "d MMMM yyyy", { locale: ms });
+    }
+    const sameMonth = from.getMonth() === to.getMonth() && from.getFullYear() === to.getFullYear();
+    const sameYear = from.getFullYear() === to.getFullYear();
+    if (sameMonth) {
+      return `${format(from, "d", { locale: ms })}-${format(to, "d MMMM yyyy", { locale: ms })}`;
+    }
+    if (sameYear) {
+      return `${format(from, "d MMM", { locale: ms })} - ${format(to, "d MMM yyyy", { locale: ms })}`;
+    }
+    return `${format(from, "d MMM yyyy", { locale: ms })} - ${format(to, "d MMM yyyy", { locale: ms })}`;
+  };
 
   const { data: slots = [], isLoading } = useQuery({
     queryKey: ["admin-slots", course.id],
