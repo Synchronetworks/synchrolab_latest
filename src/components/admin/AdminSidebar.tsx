@@ -1,4 +1,4 @@
-import { Building2, CalendarCheck, Mail, MapPin, LogOut, Users, GraduationCap, DoorOpen, ListPlus, UserCog } from "lucide-react";
+import { Building2, CalendarCheck, Mail, MapPin, LogOut, Users, GraduationCap, DoorOpen, ListPlus, UserCog, CreditCard } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { NavLink } from "@/components/NavLink";
 import {
@@ -29,6 +29,7 @@ const items = [
 ];
 
 const accountItems = [
+  { title: "Pembayaran", url: "/admin/payments", icon: CreditCard },
   { title: "Akaun Saya", url: "/admin/account", icon: UserCog },
 ];
 
