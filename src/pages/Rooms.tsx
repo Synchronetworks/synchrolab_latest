@@ -257,8 +257,8 @@ const Rooms = () => {
             </div>
             <div className="flex items-end">
               <div className="w-full rounded-lg border border-border bg-secondary/40 px-4 py-2.5">
-                <p className="text-xs text-muted-foreground">Anggaran jumlah {addonsTotal > 0 && <span className="text-foreground/60">(termasuk add-on RM{addonsTotal.toFixed(2)})</span>}{promo && <span className="text-success"> • diskaun −RM{promo.discount.toLocaleString()}</span>}</p>
-                <p className="font-display text-lg font-bold text-primary">RM{finalTotal.toLocaleString()}</p>
+                <p className="text-xs text-muted-foreground">Anggaran jumlah {addonsTotal > 0 && <span className="text-foreground/60">(termasuk add-on RM{addonsTotal.toFixed(2)})</span>}{promo && <span className="text-success"> • diskaun −RM{promo.discount.toFixed(2)}</span>}</p>
+                <p className="font-display text-lg font-bold text-primary">RM{finalTotal.toFixed(2)}</p>
               </div>
             </div>
 
@@ -339,17 +339,17 @@ const Rooms = () => {
               </div>
               <div className="flex items-center justify-between text-sm">
                 <span className="text-muted-foreground">Subjumlah</span>
-                <span>RM{total.toLocaleString()}</span>
+                <span>RM{total.toFixed(2)}</span>
               </div>
               {promo && (
                 <div className="flex items-center justify-between text-sm text-success">
                   <span>Diskaun ({promo.code})</span>
-                  <span>− RM{promo.discount.toLocaleString()}</span>
+                  <span>− RM{promo.discount.toFixed(2)}</span>
                 </div>
               )}
               <div className="flex items-center justify-between border-t border-border pt-2">
                 <span className="text-sm text-muted-foreground">Jumlah perlu bayar</span>
-                <span className="font-display text-xl font-bold text-primary">RM{finalTotal.toLocaleString()}</span>
+                <span className="font-display text-xl font-bold text-primary">RM{finalTotal.toFixed(2)}</span>
               </div>
             </div>
             <Button type="submit" variant="accent" size="lg" className="md:col-span-2" disabled={submitting}>

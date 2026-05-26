@@ -482,17 +482,17 @@ const CourseDetail = () => {
                 </div>
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">Subjumlah</span>
-                  <span>RM{total.toLocaleString()}</span>
+                  <span>RM{total.toFixed(2)}</span>
                 </div>
                 {promo && (
                   <div className="flex items-center justify-between text-sm text-success">
                     <span>Diskaun ({promo.code})</span>
-                    <span>− RM{promo.discount.toLocaleString()}</span>
+                    <span>− RM{promo.discount.toFixed(2)}</span>
                   </div>
                 )}
                 <div className="flex items-center justify-between border-t border-border pt-2">
                   <span className="text-sm text-muted-foreground">Jumlah</span>
-                  <span className="font-display text-xl font-bold text-primary">RM{finalTotal.toLocaleString()}</span>
+                  <span className="font-display text-xl font-bold text-primary">RM{finalTotal.toFixed(2)}</span>
                 </div>
               </div>
 
