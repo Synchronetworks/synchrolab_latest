@@ -37,8 +37,9 @@ const accountItems = [
 ];
 
 export function AdminSidebar() {
-  const { state } = useSidebar();
-  const collapsed = state === "collapsed";
+  const { state, isMobile, setOpenMobile } = useSidebar();
+  const collapsed = state === "collapsed" && !isMobile;
+  const showLabels = !collapsed || isMobile;
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -47,12 +48,16 @@ export function AdminSidebar() {
     navigate("/auth", { replace: true });
   };
 
+  const handleNavClick = () => {
+    if (isMobile) setOpenMobile(false);
+  };
+
   return (
     <Sidebar collapsible="icon" className="border-r-0 [&_[data-sidebar=sidebar]]:bg-slate-900 [&_[data-sidebar=sidebar]]:text-slate-100">
       <SidebarHeader className="px-4 py-4">
-        {!collapsed && (
+        {showLabels && (
           <div>
-            <p className="font-display text-lg font-bold text-white">SynchroLab</p>
+            <p className="font-display text-xl font-bold text-white">SynchroLab</p>
             <p className="text-xs text-slate-400">Admin Panel</p>
           </div>
         )}
@@ -69,11 +74,12 @@ export function AdminSidebar() {
                     <SidebarMenuButton
                       asChild
                       isActive={active}
-                      className="text-slate-300 hover:bg-slate-800 hover:text-white data-[active=true]:bg-slate-800 data-[active=true]:text-white"
+                      size={isMobile ? "lg" : "default"}
+                      className="text-slate-200 hover:bg-slate-800 hover:text-white data-[active=true]:bg-slate-800 data-[active=true]:text-white"
                     >
-                      <NavLink to={item.url} className="flex items-center gap-2">
-                        <item.icon className="h-4 w-4" />
-                        {!collapsed && <span>{item.title}</span>}
+                      <NavLink to={item.url} onClick={handleNavClick} className="flex items-center gap-3">
+                        <item.icon className={isMobile ? "h-5 w-5 shrink-0" : "h-4 w-4 shrink-0"} />
+                        {showLabels && <span className={isMobile ? "text-base font-medium" : ""}>{item.title}</span>}
                       </NavLink>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
@@ -94,11 +100,12 @@ export function AdminSidebar() {
                     <SidebarMenuButton
                       asChild
                       isActive={active}
-                      className="text-slate-300 hover:bg-slate-800 hover:text-white data-[active=true]:bg-slate-800 data-[active=true]:text-white"
+                      size={isMobile ? "lg" : "default"}
+                      className="text-slate-200 hover:bg-slate-800 hover:text-white data-[active=true]:bg-slate-800 data-[active=true]:text-white"
                     >
-                      <NavLink to={item.url} className="flex items-center gap-2">
-                        <item.icon className="h-4 w-4" />
-                        {!collapsed && <span>{item.title}</span>}
+                      <NavLink to={item.url} onClick={handleNavClick} className="flex items-center gap-3">
+                        <item.icon className={isMobile ? "h-5 w-5 shrink-0" : "h-4 w-4 shrink-0"} />
+                        {showLabels && <span className={isMobile ? "text-base font-medium" : ""}>{item.title}</span>}
                       </NavLink>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
@@ -111,14 +118,14 @@ export function AdminSidebar() {
       <SidebarFooter className="gap-2 p-2">
         <Button
           variant="ghost"
-          size="sm"
-          className="w-full justify-start text-slate-300 hover:bg-slate-800 hover:text-white"
+          size={isMobile ? "default" : "sm"}
+          className="w-full justify-start text-slate-200 hover:bg-slate-800 hover:text-white"
           onClick={handleLogout}
         >
-          <LogOut className="h-4 w-4" />
-          {!collapsed && <span className="ml-2">Log Keluar</span>}
+          <LogOut className={isMobile ? "h-5 w-5" : "h-4 w-4"} />
+          {showLabels && <span className={isMobile ? "ml-2 text-base font-medium" : "ml-2"}>Log Keluar</span>}
         </Button>
-        {!collapsed && (
+        {showLabels && (
           <p className="px-2 pt-2 text-[10px] leading-tight text-slate-500">
             Powered by Synchronetwork Sdn. Bhd.
           </p>
