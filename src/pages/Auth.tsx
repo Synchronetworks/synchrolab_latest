@@ -161,7 +161,10 @@ const Auth = () => {
         <Link to="/" className="text-sm text-muted-foreground hover:text-foreground">
           ← Kembali ke laman utama
         </Link>
-        <h1 className="mt-4 font-display text-3xl font-extrabold text-foreground">
+        <div className="mt-4 flex justify-center">
+          <img src={logo} alt="SynchroLab" className="h-16 w-16 object-contain" />
+        </div>
+        <h1 className="mt-4 font-display text-3xl font-extrabold text-foreground text-center">
           {mode === "login" ? "Log Masuk" : "Daftar Akaun"}
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
