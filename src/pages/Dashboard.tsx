@@ -11,6 +11,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { BookOpen, DoorOpen, Calendar, Hash, User, Save, KeyRound, Camera, Link2, FileText } from "lucide-react";
 import { toast } from "sonner";
 import { downloadBookingReceipt } from "@/lib/receipt";
+import { BookingsList } from "@/components/dashboard/BookingsList";
 
 type Booking = {
   id: string;
