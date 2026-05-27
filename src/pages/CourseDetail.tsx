@@ -57,14 +57,16 @@ const CourseDetail = () => {
       if (!session) return;
       const { data: profile } = await supabase
         .from("profiles")
-        .select("full_name, phone")
+        .select("full_name, phone, age")
         .eq("id", session.user.id)
         .maybeSingle();
       const emailVal = session.user.email || "";
       const phoneVal = profile?.phone || "";
+      const ageVal = profile?.age != null ? String(profile.age) : "";
       setForm((f) => ({
         ...f,
         customer_name: f.customer_name || profile?.full_name || "",
+        customer_age: f.customer_age || ageVal,
         email: f.email || emailVal,
         phone: f.phone || phoneVal,
       }));
