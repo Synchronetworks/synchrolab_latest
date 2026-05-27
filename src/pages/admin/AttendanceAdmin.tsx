@@ -156,8 +156,8 @@ const AttendanceAdmin = () => {
           <CardContent className="space-y-4">
             <div
               id={READER_ID}
-              className="overflow-hidden rounded-xl border border-border bg-muted/30"
-              style={{ minHeight: scanning ? 280 : 0 }}
+              className="overflow-hidden rounded-xl border border-border bg-muted/30 [&_video]:!w-full [&_video]:!h-auto"
+              style={{ minHeight: scanning ? (typeof window !== "undefined" && window.innerWidth < 640 ? 380 : 320) : 0 }}
             />
             {!scanning ? (
               <Button onClick={startScanner} className="w-full">
