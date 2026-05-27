@@ -19,6 +19,9 @@ type Booking = {
   customer_name: string;
   num_pax: number;
   total_amount: number;
+  subtotal_amount: number | null;
+  discount_amount: number | null;
+  promo_code: string | null;
   payment_status: string;
   booking_status: string;
   booking_date_from: string | null;
