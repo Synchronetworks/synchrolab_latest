@@ -14,6 +14,9 @@ type BookingResult = {
   email: string;
   num_pax: number;
   total_amount: number;
+  subtotal_amount: number | null;
+  discount_amount: number | null;
+  promo_code: string | null;
   payment_status: "unpaid" | "paid" | "refunded";
   booking_status: "pending" | "confirmed" | "cancelled";
   booking_date_from: string | null;
