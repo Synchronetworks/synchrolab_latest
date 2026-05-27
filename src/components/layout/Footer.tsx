@@ -99,7 +99,7 @@ export const Footer = () => {
 
         <div className="mt-12 flex flex-col items-center justify-between gap-3 border-t border-white/10 pt-6 text-xs text-primary-foreground/60 md:flex-row">
           <p>© {new Date().getFullYear()} Synchronetwork Sdn. Bhd. (1194790-K). Hak Cipta Terpelihara.</p>
-          <p>Dibangunkan dengan ❤ di Malaysia</p>
+          <p>Hubungi kami jika berminat untuk White Label system tempahan online ini untuk perniagaan anda</p>
         </div>
       </div>
     </footer>
