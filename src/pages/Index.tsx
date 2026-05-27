@@ -46,7 +46,7 @@ const Index = () => {
           <div className="max-w-3xl">
             <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-xs font-medium text-white backdrop-blur-sm">
               <Sparkles className="h-3.5 w-3.5 text-accent" />
-              Platform Latihan IT #1 di Malaysia
+              Platform daftar kursus & sewa paling mudah & selamat!
             </span>
             <h1 className="mt-6 font-display text-4xl font-extrabold leading-tight text-white md:text-5xl lg:text-6xl">
               Tingkatkan kemahiran. <br />
