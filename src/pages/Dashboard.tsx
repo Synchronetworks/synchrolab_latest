@@ -421,7 +421,7 @@ const Dashboard = () => {
             <Link to="/kursus">Lihat semua kursus →</Link>
           </Button>
         </div>
-        <div className="mt-4 space-y-3">
+        <div className="mt-4">
           {loading ? (
             <Skeleton className="h-28 w-full" />
           ) : courseBookings.length === 0 ? (
@@ -431,9 +431,14 @@ const Dashboard = () => {
               cta={<Button asChild><Link to="/kursus">Layari kursus</Link></Button>}
             />
           ) : (
-            courseBookings.map((b) => (
-              <BookingRow key={b.id} b={b} title={b.course_title ?? "Kursus"} subtitle={b.slot_label} />
-            ))
+            <BookingsList
+              items={courseBookings}
+              getTitle={(b) => b.course_title ?? "Kursus"}
+              getSubtitle={(b) => b.slot_label}
+              renderItem={(b) => (
+                <BookingRow key={b.id} b={b} title={b.course_title ?? "Kursus"} subtitle={b.slot_label} />
+              )}
+            />
           )}
         </div>
       </section>
