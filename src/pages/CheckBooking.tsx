@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import jsPDF from "jspdf";
 import { downloadBookingReceipt } from "@/lib/receipt";
+import { BookingQRCode } from "@/components/BookingQRCode";
 
 type BookingResult = {
   ref_no: string;
@@ -239,9 +240,18 @@ const CheckBooking = () => {
                       Muat Turun Resit (PDF)
                     </Button>
                     {result.type === "course" && (
-                      <Button size="sm" variant="outline" onClick={downloadCertificate}>
-                        Muat Turun Sijil
-                      </Button>
+                      <>
+                        <BookingQRCode
+                          refNo={result.ref_no}
+                          customerName={result.customer_name}
+                          title={itemName}
+                          subtitle={dateLabel}
+                          size="sm"
+                        />
+                        <Button size="sm" variant="outline" onClick={downloadCertificate}>
+                          Muat Turun Sijil
+                        </Button>
+                      </>
                     )}
                   </div>
                 ) : (
