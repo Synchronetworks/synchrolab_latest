@@ -302,7 +302,10 @@ const Auth = () => {
       {forgotOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => setForgotOpen(false)}>
           <div className="w-full max-w-md rounded-2xl border border-border bg-card p-6 shadow-elegant" onClick={(e) => e.stopPropagation()}>
-            <h2 className="font-display text-xl font-bold">Lupa Password</h2>
+            <div className="flex justify-center mb-3">
+              <img src={logo} alt="SynchroLab" className="h-14 w-14 object-contain" />
+            </div>
+            <h2 className="font-display text-xl font-bold text-center">Lupa Password</h2>
             <p className="mt-1 text-sm text-muted-foreground">
               Masukkan emel akaun anda. Kami akan hantar pautan untuk tetap semula password.
             </p>
