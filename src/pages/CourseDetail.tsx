@@ -437,7 +437,7 @@ const CourseDetail = () => {
                   </div>
                 </div>
               )}
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <div>
                   <Label>E-mel *</Label>
                   <Input required type="email" className="mt-1.5" value={form.email} disabled={lockedEmail} readOnly={lockedEmail} onChange={(e) => setForm({ ...form, email: e.target.value })} />
