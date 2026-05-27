@@ -129,10 +129,19 @@ const Auth = () => {
         toast.success("Berjaya log masuk");
         if (data.user) await redirectAfterAuth(data.user.id);
       } else {
+        const fullName = String(fd.get("full_name") ?? "").trim();
+        if (!fullName) {
+          toast.error("Sila masukkan nama penuh");
+          setSubmitting(false);
+          return;
+        }
         const { error } = await supabase.auth.signUp({
           email,
           password,
-          options: { emailRedirectTo: `${window.location.origin}/dashboard` },
+          options: {
+            emailRedirectTo: `${window.location.origin}/dashboard`,
+            data: { full_name: fullName },
+          },
         });
         if (error) throw error;
         toast.success("Akaun dicipta", { description: "Sila log masuk." });
@@ -161,6 +170,12 @@ const Auth = () => {
         </p>
 
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+          {mode === "signup" && (
+            <div>
+              <Label htmlFor="full_name">Nama Penuh</Label>
+              <Input id="full_name" name="full_name" type="text" required className="mt-1.5" autoComplete="name" />
+            </div>
+          )}
           <div>
             <Label htmlFor="email">Emel</Label>
             <Input id="email" name="email" type="email" required className="mt-1.5" autoComplete="email" />
