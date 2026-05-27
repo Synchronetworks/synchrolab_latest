@@ -1,4 +1,4 @@
-import { Building2, CalendarCheck, Mail, MapPin, LogOut, Users, GraduationCap, DoorOpen, ListPlus, UserCog, CreditCard, Tag, Quote } from "lucide-react";
+import { Building2, CalendarCheck, Mail, MapPin, LogOut, Users, GraduationCap, DoorOpen, ListPlus, UserCog, CreditCard, Tag, Quote, QrCode } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { NavLink } from "@/components/NavLink";
 import {
@@ -19,6 +19,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 const items = [
   { title: "Tempahan", url: "/admin/bookings", icon: CalendarCheck },
+  { title: "Kehadiran", url: "/admin/attendance", icon: QrCode },
   { title: "Kursus", url: "/admin/courses", icon: GraduationCap },
   { title: "Bilik", url: "/admin/rooms", icon: DoorOpen },
   { title: "Add-on Bilik", url: "/admin/addons", icon: ListPlus },
