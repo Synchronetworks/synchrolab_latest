@@ -1,5 +1,4 @@
 import jsPDF from "jspdf";
-import logoUrl from "@/assets/logo-synchronetwork.png";
 
 export type ReceiptData = {
   ref_no: string;
@@ -19,21 +18,6 @@ export type ReceiptData = {
 const fmtMoney = (n: number) =>
   new Intl.NumberFormat("ms-MY", { style: "currency", currency: "MYR" }).format(n);
 
-const loadLogo = async (): Promise<string | null> => {
-  try {
-    const res = await fetch(logoUrl);
-    const blob = await res.blob();
-    return await new Promise<string>((resolve, reject) => {
-      const r = new FileReader();
-      r.onloadend = () => resolve(r.result as string);
-      r.onerror = reject;
-      r.readAsDataURL(blob);
-    });
-  } catch {
-    return null;
-  }
-};
-
 const TERMS = [
   "1. Resit ini adalah pengesahan rasmi pembayaran untuk tempahan di atas dan dijana secara automatik oleh sistem.",
   "2. Bayaran yang telah dibuat adalah TIDAK BOLEH DIKEMBALIKAN (non-refundable), kecuali bagi kes pembatalan oleh pihak penganjur.",
@@ -46,40 +30,39 @@ const TERMS = [
 
 export const downloadBookingReceipt = async (data: ReceiptData) => {
   const doc = new jsPDF();
-  const logo = await loadLogo();
   const today = new Date().toLocaleDateString("ms-MY");
 
-  // Header band
+  // Header band (single section with brand + company address)
   doc.setFillColor(30, 58, 95); // navy
-  doc.rect(0, 0, 210, 38, "F");
+  doc.rect(0, 0, 210, 48, "F");
 
-  if (logo) {
-    try {
-      doc.addImage(logo, "PNG", 15, 8, 22, 22);
-    } catch {
-      /* ignore */
-    }
-  }
-
+  // Brand text (left)
   doc.setTextColor(255, 255, 255);
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(20);
-  doc.text("RESIT RASMI", 200, 18, { align: "right" });
+  doc.setFontSize(22);
+  doc.text("SynchroLab", 15, 18);
+
+  // Company address block (left, under brand)
   doc.setFont("helvetica", "normal");
-  doc.setFontSize(10);
-  doc.text("SynchroLab.my", 200, 26, { align: "right" });
   doc.setFontSize(8);
-  doc.text("Synchronetwork Sdn. Bhd. (1194790-K)", 200, 32, { align: "right" });
+  doc.text("Synchronetwork Sdn. Bhd. (1194790-K)", 15, 26);
+  doc.text("79A, Jalan Nova U5/N, Subang Bestari Sek. U5,", 15, 31);
+  doc.text("40150 Shah Alam, Selangor", 15, 36);
+  doc.text("hello@synchrolab.my  •  www.synchrolab.my", 15, 41);
+
+  // Receipt title (right)
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(20);
+  doc.text("RESIT RASMI", 195, 18, { align: "right" });
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(9);
+  doc.text("SynchroLab.my", 195, 26, { align: "right" });
 
   // Body
   doc.setTextColor(20, 20, 20);
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(9);
-  doc.text("79A, Jalan Nova U5/N, Subang Bestari Sek. U5, 40150 Shah Alam, Selangor", 15, 46);
-  doc.text("hello@synchrolab.my  •  www.synchrolab.my", 15, 51);
-
   doc.setDrawColor(220);
   doc.line(15, 56, 195, 56);
+
 
   // Customer & ref info
   doc.setFontSize(10);
