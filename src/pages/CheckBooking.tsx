@@ -178,7 +178,7 @@ const CheckBooking = () => {
         </div>
       </section>
 
-      <section className="container max-w-2xl py-14">
+      <section className="container max-w-2xl py-14 pt-0 -mt-[60px]">
         <form onSubmit={handleCheck} className="rounded-2xl border border-border bg-card p-8 shadow-soft space-y-4">
           <div>
             <Label htmlFor="ref">Nombor rujukan</Label>
