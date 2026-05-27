@@ -28,6 +28,7 @@ import AccountAdmin from "./pages/admin/AccountAdmin.tsx";
 import PaymentsAdmin from "./pages/admin/PaymentsAdmin.tsx";
 import PromoCodesAdmin from "./pages/admin/PromoCodesAdmin.tsx";
 import TestimonialsAdmin from "./pages/admin/TestimonialsAdmin.tsx";
+import AttendanceAdmin from "./pages/admin/AttendanceAdmin.tsx";
 import PaymentReturn from "./pages/PaymentReturn.tsx";
 import ResetPassword from "./pages/ResetPassword.tsx";
 import { Navigate } from "react-router-dom";
@@ -63,6 +64,7 @@ const App = () => (
             <Route path="venue-listings" element={<VenueListingsAdmin />} />
             <Route path="contact-messages" element={<ContactMessagesAdmin />} />
             <Route path="bookings" element={<BookingsAdmin />} />
+            <Route path="attendance" element={<AttendanceAdmin />} />
             <Route path="users" element={<UsersAdmin />} />
             <Route path="courses" element={<CoursesAdmin />} />
             <Route path="rooms" element={<RoomsAdmin />} />

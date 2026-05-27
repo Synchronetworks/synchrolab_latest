@@ -20,6 +20,8 @@ export type Database = {
           booking_date_from: string | null
           booking_date_to: string | null
           booking_status: Database["public"]["Enums"]["booking_status"]
+          checked_in_at: string | null
+          checked_in_by: string | null
           company: string | null
           course_id: string | null
           created_at: string
@@ -47,6 +49,8 @@ export type Database = {
           booking_date_from?: string | null
           booking_date_to?: string | null
           booking_status?: Database["public"]["Enums"]["booking_status"]
+          checked_in_at?: string | null
+          checked_in_by?: string | null
           company?: string | null
           course_id?: string | null
           created_at?: string
@@ -74,6 +78,8 @@ export type Database = {
           booking_date_from?: string | null
           booking_date_to?: string | null
           booking_status?: Database["public"]["Enums"]["booking_status"]
+          checked_in_at?: string | null
+          checked_in_by?: string | null
           company?: string | null
           course_id?: string | null
           created_at?: string
@@ -724,6 +730,21 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_check_in_booking: {
+        Args: { _ref: string }
+        Returns: {
+          already_checked_in: boolean
+          booking_status: Database["public"]["Enums"]["booking_status"]
+          checked_in_at: string
+          course_title: string
+          customer_name: string
+          email: string
+          num_pax: number
+          payment_status: Database["public"]["Enums"]["payment_status"]
+          ref_no: string
+          slot_label: string
+        }[]
+      }
       attach_billplz_to_booking: {
         Args: { _bill_id: string; _payment_url: string; _ref_no: string }
         Returns: undefined
