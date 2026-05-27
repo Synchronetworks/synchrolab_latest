@@ -375,7 +375,7 @@ const CourseDetail = () => {
                   ))}
                 </select>
               </div>
-              <div className="grid grid-cols-[1fr_80px_120px] gap-3">
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-[1fr_80px_120px]">
                 <div>
                   <Label>Nama penuh *</Label>
                   <Input required className="mt-1.5" value={form.customer_name} onChange={(e) => setForm({ ...form, customer_name: e.target.value })} />
