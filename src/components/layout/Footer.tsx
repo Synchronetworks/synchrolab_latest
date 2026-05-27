@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Mail, MapPin, Phone, Facebook, Instagram, Linkedin } from "lucide-react";
+import { Mail, MapPin, Phone, Facebook, Instagram, Youtube } from "lucide-react";
 import logo from "@/assets/logo-synchronetwork.png";
 
 export const Footer = () => {
@@ -58,13 +58,37 @@ export const Footer = () => {
 
           <div>
             <h4 className="font-display text-sm font-semibold uppercase tracking-wider">Ikuti Kami</h4>
-            <div className="mt-4 flex gap-3">
-              {[Facebook, Instagram, Linkedin].map((Icon, i) => (
+            <div className="mt-4 flex flex-wrap gap-3">
+              {[
+                { label: "Facebook", href: "https://facebook.com/synchronetwork", Icon: Facebook },
+                { label: "Instagram", href: "https://instagram.com/synchronetwork", Icon: Instagram },
+                {
+                  label: "TikTok",
+                  href: "https://tiktok.com/@synchronetwork",
+                  Icon: (props: { className?: string }) => (
+                    <svg viewBox="0 0 24 24" fill="currentColor" className={props.className} aria-hidden="true">
+                      <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5.8 20.1a6.34 6.34 0 0 0 10.86-4.43V8.93a8.16 8.16 0 0 0 4.77 1.52V7a4.85 4.85 0 0 1-1.84-.31z" />
+                    </svg>
+                  ),
+                },
+                { label: "YouTube", href: "https://youtube.com/@synchronetwork", Icon: Youtube },
+                {
+                  label: "Threads",
+                  href: "https://threads.net/@synchronetwork",
+                  Icon: (props: { className?: string }) => (
+                    <svg viewBox="0 0 24 24" fill="currentColor" className={props.className} aria-hidden="true">
+                      <path d="M12.18 22h-.06C8.46 21.98 5.7 20.92 4 18.85 2.5 17 1.72 14.42 1.7 12.01v-.02C1.72 9.58 2.5 7 4 5.15 5.7 3.08 8.46 2.02 12.12 2h.06c2.8.02 5.14.65 6.97 1.87 1.71 1.16 2.92 2.83 3.55 4.97l-2.06.59c-1.07-3.63-3.62-5.5-7.47-5.52-2.97.02-5.22.95-6.55 2.57C5.42 7.97 4.83 9.92 4.82 12s.6 4.03 1.8 5.52c1.33 1.62 3.58 2.55 6.55 2.57 2.68-.02 4.45-.65 5.92-2.11.84-.83 1.6-2.07 1.6-3.43 0-2.4-1.27-3.83-4.05-4.6-.21 1.78-.85 3.21-1.9 4.24-1.2 1.18-2.85 1.78-4.78 1.74-1.46-.03-2.7-.43-3.59-1.16-.97-.79-1.46-1.93-1.4-3.21.13-2.54 2.22-4.11 5.32-4 .94.03 1.84.13 2.66.29-.13-.85-.42-1.52-.84-2-.6-.66-1.52-1-2.74-1.01h-.04c-.9 0-2.13.27-2.9 1.5l-1.78-1.2C7.83 5.51 9.36 4.74 11.4 4.74h.06c3.42.02 5.46 2.13 5.66 5.81.12.05.23.1.34.16 1.59.75 2.75 1.89 3.36 3.29.85 1.96.93 5.15-1.66 7.74C17.34 21.5 15.06 22 12.18 22zm.04-12.04c-.16 0-.32 0-.49.01-2.4.13-3.34 1.34-3.42 2.48-.07 1.47 1.5 2.16 3 2.19 1.38.03 3.2-.51 3.51-3.49-.75-.16-1.62-.27-2.6-.27z" />
+                    </svg>
+                  ),
+                },
+              ].map(({ label, href, Icon }) => (
                 <a
-                  key={i}
-                  href="#"
+                  key={label}
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="flex h-10 w-10 items-center justify-center rounded-lg bg-white/10 transition-base hover:bg-accent"
-                  aria-label="Social"
+                  aria-label={label}
                 >
                   <Icon className="h-4 w-4" />
                 </a>
