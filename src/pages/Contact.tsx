@@ -45,7 +45,7 @@ const Contact = () => {
         </div>
       </section>
 
-      <section className="container py-14">
+      <section className="container py-14 pt-0 -mt-[60px]">
         <div className="grid gap-10 lg:grid-cols-[1fr_1.2fr]">
           <div className="space-y-4">
             {[
