@@ -343,7 +343,7 @@ const CourseDetail = () => {
       </section>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-lg">
+        <DialogContent className="max-w-lg w-[calc(100%-1.5rem)] max-h-[90vh] overflow-y-auto p-4 sm:p-6 rounded-xl">
           <DialogHeader>
             <DialogTitle>Tempah Kursus</DialogTitle>
             <DialogDescription>{course.title}</DialogDescription>
