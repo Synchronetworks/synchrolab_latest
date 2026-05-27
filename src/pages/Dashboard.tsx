@@ -542,11 +542,11 @@ const BookingRow = ({
   title: string;
   subtitle?: string;
 }) => (
-  <Card className="transition-base hover:shadow-elegant">
-    <CardContent className="flex flex-wrap items-center justify-between gap-4 p-5">
+<Card className="transition-base hover:shadow-elegant">
+    <CardContent className="flex flex-col gap-4 p-4 sm:flex-row sm:items-start sm:justify-between sm:gap-4 sm:p-5">
       <div className="min-w-0 flex-1">
-        <div className="flex flex-wrap items-center gap-2">
-          <h3 className="font-display text-base font-semibold text-foreground">{title}</h3>
+        <h3 className="font-display text-base font-semibold text-foreground break-words">{title}</h3>
+        <div className="mt-2 flex flex-wrap items-center gap-1.5">
           <Badge variant="outline" className={statusColor(b.booking_status)}>
             {b.booking_status}
           </Badge>
@@ -555,17 +555,21 @@ const BookingRow = ({
           </Badge>
         </div>
         {subtitle && (
-          <p className="mt-1 flex items-center gap-1.5 text-sm text-muted-foreground">
-            <Calendar className="h-3.5 w-3.5" /> {subtitle}
+          <p className="mt-2 flex items-start gap-1.5 text-sm text-muted-foreground">
+            <Calendar className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+            <span className="break-words">{subtitle}</span>
           </p>
         )}
-        <p className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground">
-          <Hash className="h-3 w-3" /> {b.ref_no} • {b.num_pax} peserta
+        <p className="mt-1 flex items-start gap-1.5 text-xs text-muted-foreground">
+          <Hash className="mt-0.5 h-3 w-3 shrink-0" />
+          <span className="break-all">{b.ref_no} • {b.num_pax} peserta</span>
         </p>
       </div>
-      <div className="flex flex-col items-end gap-2">
-        <p className="font-display text-lg font-bold text-foreground">{fmtMoney(b.total_amount)}</p>
-        <p className="text-xs text-muted-foreground">{fmtDate(b.created_at)}</p>
+      <div className="flex flex-row items-center justify-between gap-3 border-t border-border pt-3 sm:flex-col sm:items-end sm:justify-start sm:border-0 sm:pt-0">
+        <div className="flex flex-col sm:items-end">
+          <p className="font-display text-lg font-bold text-foreground">{fmtMoney(b.total_amount)}</p>
+          <p className="text-xs text-muted-foreground">{fmtDate(b.created_at)}</p>
+        </div>
         {b.payment_status === "paid" ? (
           <div className="flex flex-wrap items-center justify-end gap-2">
             <Button size="sm" variant="outline" onClick={() => downloadReceipt(b, title, subtitle)}>
