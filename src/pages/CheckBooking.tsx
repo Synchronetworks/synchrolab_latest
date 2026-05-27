@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import jsPDF from "jspdf";
+import { downloadBookingReceipt } from "@/lib/receipt";
 
 type BookingResult = {
   ref_no: string;
