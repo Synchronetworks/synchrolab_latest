@@ -449,7 +449,7 @@ const Dashboard = () => {
         <div className="flex items-center justify-between">
           <h2 className="font-display text-xl font-bold text-foreground">Tempahan Bilik Saya</h2>
           <Button asChild variant="ghost" size="sm">
-            <Link to="/sewa-bilik">Lihat bilik →</Link>
+            <Link to="/sewa-bilik">Lihat senarai bilik latihan →</Link>
           </Button>
         </div>
         <div className="mt-4">
