@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Check, X, Eye, EyeOff } from "lucide-react";
+import logo from "@/assets/logo-synchronetwork.png";
 
 const Hint = ({ ok, text }: { ok: boolean; text: string }) => (
   <li className={`flex items-center gap-1 ${ok ? "text-emerald-600" : ""}`}>
