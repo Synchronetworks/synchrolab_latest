@@ -420,7 +420,7 @@ const Dashboard = () => {
         <div className="flex items-center justify-between">
           <h2 className="font-display text-xl font-bold text-foreground">Tempahan Kursus Saya</h2>
           <Button asChild variant="ghost" size="sm">
-            <Link to="/kursus">Lihat semua kursus →</Link>
+            <Link to="/kursus">Lihat kursus baru →</Link>
           </Button>
         </div>
         <div className="mt-4">
