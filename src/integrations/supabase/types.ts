@@ -773,12 +773,15 @@ export type Database = {
           course_title: string
           created_at: string
           customer_name: string
+          discount_amount: number
           email: string
           num_pax: number
           payment_status: Database["public"]["Enums"]["payment_status"]
+          promo_code: string
           ref_no: string
           room_name: string
           slot_label: string
+          subtotal_amount: number
           total_amount: number
           type: Database["public"]["Enums"]["booking_type"]
         }[]

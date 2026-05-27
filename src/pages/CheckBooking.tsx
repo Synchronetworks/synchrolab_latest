@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import jsPDF from "jspdf";
+import { downloadBookingReceipt } from "@/lib/receipt";
 
 type BookingResult = {
   ref_no: string;
@@ -13,6 +14,9 @@ type BookingResult = {
   email: string;
   num_pax: number;
   total_amount: number;
+  subtotal_amount: number | null;
+  discount_amount: number | null;
+  promo_code: string | null;
   payment_status: "unpaid" | "paid" | "refunded";
   booking_status: "pending" | "confirmed" | "cancelled";
   booking_date_from: string | null;
@@ -69,45 +73,20 @@ const CheckBooking = () => {
 
   const downloadReceipt = () => {
     if (!result) return;
-    const doc = new jsPDF();
-    const today = new Date().toLocaleDateString("ms-MY");
-
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(20);
-    doc.text("RESIT RASMI", 105, 25, { align: "center" });
-    doc.setFontSize(12);
-    doc.text("SynchroLab.my", 105, 33, { align: "center" });
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(9);
-    doc.text("Synchronetwork Sdn. Bhd. (1194790-K)", 105, 39, { align: "center" });
-    doc.text("79A, Jalan Nova U5/N, Subang Bestari Sek. U5, 40150 Shah Alam, Selangor", 105, 44, { align: "center" });
-    doc.setDrawColor(180);
-    doc.line(20, 50, 190, 50);
-
-    doc.setFontSize(11);
-    doc.text(`No. Rujukan: ${result.ref_no}`, 20, 60);
-    doc.text(`Tarikh Resit: ${today}`, 20, 67);
-    doc.text(`Pelanggan: ${result.customer_name}`, 20, 74);
-    doc.text(`Status Bayaran: ${paymentLabel(result.payment_status)}`, 20, 81);
-
-    doc.setFont("helvetica", "bold");
-    doc.text("Butiran Tempahan", 20, 95);
-    doc.setFont("helvetica", "normal");
-    doc.text(result.type === "course" ? "Kursus:" : "Bilik:", 20, 105);
-    doc.text(itemName, 60, 105);
-    doc.text("Tarikh:", 20, 112);
-    doc.text(dateLabel || "—", 60, 112);
-
-    doc.line(20, 125, 190, 125);
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(13);
-    doc.text("Jumlah Dibayar:", 20, 135);
-    doc.text(`RM ${Number(result.total_amount).toFixed(2)}`, 190, 135, { align: "right" });
-
-    doc.setFont("helvetica", "italic");
-    doc.setFontSize(9);
-    doc.text("Terima kasih kerana menggunakan SynchroLab.my", 105, 280, { align: "center" });
-    doc.save(`Resit-${result.ref_no}.pdf`);
+    return downloadBookingReceipt({
+      ref_no: result.ref_no,
+      type: result.type,
+      customer_name: result.customer_name,
+      email: result.email,
+      num_pax: result.num_pax,
+      total_amount: Number(result.total_amount),
+      subtotal_amount: result.subtotal_amount,
+      discount_amount: result.discount_amount,
+      promo_code: result.promo_code,
+      payment_status: result.payment_status,
+      itemTitle: itemName,
+      dateLabel: dateLabel,
+    });
   };
 
   const downloadCertificate = () => {
