@@ -343,7 +343,7 @@ const CourseDetail = () => {
       </section>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-lg">
+        <DialogContent className="max-w-lg w-[calc(100%-1.5rem)] max-h-[90vh] overflow-y-auto p-4 sm:p-6 rounded-xl">
           <DialogHeader>
             <DialogTitle>Tempah Kursus</DialogTitle>
             <DialogDescription>{course.title}</DialogDescription>
@@ -375,8 +375,8 @@ const CourseDetail = () => {
                   ))}
                 </select>
               </div>
-              <div className="grid grid-cols-[1fr_80px_120px] gap-3">
-                <div>
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-[1fr_80px_120px]">
+                <div className="col-span-2 sm:col-span-1">
                   <Label>Nama penuh *</Label>
                   <Input required className="mt-1.5" value={form.customer_name} onChange={(e) => setForm({ ...form, customer_name: e.target.value })} />
                   <label className="mt-2 flex cursor-pointer items-center gap-2 text-xs text-muted-foreground">
@@ -437,7 +437,7 @@ const CourseDetail = () => {
                   </div>
                 </div>
               )}
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <div>
                   <Label>E-mel *</Label>
                   <Input required type="email" className="mt-1.5" value={form.email} disabled={lockedEmail} readOnly={lockedEmail} onChange={(e) => setForm({ ...form, email: e.target.value })} />
