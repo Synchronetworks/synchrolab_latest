@@ -362,20 +362,26 @@ const CourseDetail = () => {
             </div>
           ) : (
             <form onSubmit={submitBooking} className="space-y-4">
-              <div>
-                <Label>Slot tarikh</Label>
-                <select
-                  required
-                  value={selectedSlot?.id ?? ""}
-                  onChange={(e) => setSelectedSlot(slots.find((s) => s.id === e.target.value) ?? null)}
-                  className="mt-1.5 flex h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
-                >
-                  {slots.filter((s) => s.seats_left > 0).map((s) => (
-                    <option key={s.id} value={s.id}>{s.date_label} ({s.seats_left} tempat)</option>
-                  ))}
-                </select>
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-[1fr_120px]">
+                <div>
+                  <Label>Slot tarikh</Label>
+                  <select
+                    required
+                    value={selectedSlot?.id ?? ""}
+                    onChange={(e) => setSelectedSlot(slots.find((s) => s.id === e.target.value) ?? null)}
+                    className="mt-1.5 flex h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                  >
+                    {slots.filter((s) => s.seats_left > 0).map((s) => (
+                      <option key={s.id} value={s.id}>{s.date_label} ({s.seats_left} tempat)</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <Label>Bil. peserta *</Label>
+                  <Input required type="number" min={1} max={selectedSlot?.seats_left ?? 50} className="mt-1.5" value={form.num_pax} onChange={(e) => setForm({ ...form, num_pax: Number(e.target.value) })} />
+                </div>
               </div>
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-[1fr_80px_120px]">
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-[1fr_100px]">
                 <div className="col-span-2 sm:col-span-1">
                   <Label>Nama penuh *</Label>
                   <Input required className="mt-1.5" value={form.customer_name} onChange={(e) => setForm({ ...form, customer_name: e.target.value })} />
@@ -391,11 +397,8 @@ const CourseDetail = () => {
                   <Label>Umur *</Label>
                   <Input required type="number" min={1} max={120} className="mt-1.5" value={form.customer_age} onChange={(e) => setForm({ ...form, customer_age: e.target.value })} />
                 </div>
-                <div>
-                  <Label>Bil. peserta *</Label>
-                  <Input required type="number" min={1} max={selectedSlot?.seats_left ?? 50} className="mt-1.5" value={form.num_pax} onChange={(e) => setForm({ ...form, num_pax: Number(e.target.value) })} />
-                </div>
               </div>
+
 
               {participantsCount > 0 && (
                 <div className="rounded-lg border border-dashed border-border bg-secondary/30 p-3">
