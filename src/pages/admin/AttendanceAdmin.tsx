@@ -102,9 +102,15 @@ const AttendanceAdmin = () => {
       try {
         const html5 = new Html5Qrcode(READER_ID, { verbose: false });
         scannerRef.current = html5;
+        const vw = Math.min(window.innerWidth, 640);
+        const boxSize = Math.max(220, Math.floor(vw * 0.78));
         await html5.start(
           { facingMode: "environment" },
-          { fps: 10, qrbox: { width: 250, height: 250 } },
+          {
+            fps: 10,
+            qrbox: { width: boxSize, height: boxSize },
+            aspectRatio: window.innerWidth < 640 ? 1 : 1.3333,
+          },
           (decoded) => {
             const ref = decoded.trim().toUpperCase();
             if (!ref || ref === lastRefRef.current) return;
