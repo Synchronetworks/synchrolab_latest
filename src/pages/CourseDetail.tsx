@@ -447,7 +447,7 @@ const CourseDetail = () => {
                   {lockedEmail && <p className="mt-1 text-xs text-muted-foreground">Kemas kini di Profil Saya</p>}
                 </div>
                 <div>
-                  <Label>Telefon *</Label>
+                  <Label>No. Telefon *</Label>
                   <Input required className="mt-1.5" value={form.phone} disabled={lockedPhone} readOnly={lockedPhone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
                   {lockedPhone && <p className="mt-1 text-xs text-muted-foreground">Kemas kini di Profil Saya</p>}
                 </div>
