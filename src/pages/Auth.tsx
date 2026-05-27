@@ -291,7 +291,7 @@ const Auth = () => {
           onClick={() => setMode(mode === "login" ? "signup" : "login")}
           className="mt-4 w-full text-center text-sm text-muted-foreground hover:text-foreground"
         >
-          {mode === "login" ? "Belum ada akaun? Daftar" : "Sudah ada akaun? Log masuk"}
+          {mode === "login" ? "Belum ada akaun? Jom Daftar Sekarang" : "Sudah ada akaun? Log masuk"}
         </button>
       </div>
 
