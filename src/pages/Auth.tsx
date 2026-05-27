@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Check, X, Eye, EyeOff } from "lucide-react";
+import logo from "@/assets/logo-synchronetwork.png";
 
 const Hint = ({ ok, text }: { ok: boolean; text: string }) => (
   <li className={`flex items-center gap-1 ${ok ? "text-emerald-600" : ""}`}>
@@ -160,7 +161,10 @@ const Auth = () => {
         <Link to="/" className="text-sm text-muted-foreground hover:text-foreground">
           ← Kembali ke laman utama
         </Link>
-        <h1 className="mt-4 font-display text-3xl font-extrabold text-foreground">
+        <div className="mt-4 flex justify-center">
+          <img src={logo} alt="SynchroLab" className="h-16 w-16 object-contain" />
+        </div>
+        <h1 className="mt-4 font-display text-3xl font-extrabold text-foreground text-center">
           {mode === "login" ? "Log Masuk" : "Daftar Akaun"}
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
@@ -298,7 +302,10 @@ const Auth = () => {
       {forgotOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => setForgotOpen(false)}>
           <div className="w-full max-w-md rounded-2xl border border-border bg-card p-6 shadow-elegant" onClick={(e) => e.stopPropagation()}>
-            <h2 className="font-display text-xl font-bold">Lupa Password</h2>
+            <div className="flex justify-center mb-3">
+              <img src={logo} alt="SynchroLab" className="h-14 w-14 object-contain" />
+            </div>
+            <h2 className="font-display text-xl font-bold text-center">Lupa Password</h2>
             <p className="mt-1 text-sm text-muted-foreground">
               Masukkan emel akaun anda. Kami akan hantar pautan untuk tetap semula password.
             </p>
