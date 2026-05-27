@@ -174,7 +174,7 @@ const Rooms = () => {
         </div>
       </section>
 
-      <section className="container py-14">
+      <section className="container py-14 pt-0 -mt-[60px]">
         {isLoading ? (
           <div className="flex justify-center py-16 text-muted-foreground"><Loader2 className="h-6 w-6 animate-spin" /></div>
         ) : (
