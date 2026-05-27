@@ -41,7 +41,7 @@ const Contact = () => {
       <section className="bg-gradient-hero py-16">
         <div className="container max-w-3xl text-center">
           <h1 className="font-display text-4xl font-extrabold text-white md:text-5xl">Hubungi Kami</h1>
-          <p className="mt-4 text-white/80">Kami sedia membantu anda — daripada pertanyaan kursus hinggalah cadangan latihan tertutup.</p>
+          <p className="mt-4 text-white/80 mb-[50px]">Kami sedia membantu anda. Daripada pertanyaan kursus hinggalah cadangan kursus.</p>
         </div>
       </section>
 
