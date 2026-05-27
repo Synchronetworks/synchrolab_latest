@@ -11,6 +11,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { BookOpen, DoorOpen, Calendar, Hash, User, Save, KeyRound, Camera, Link2, FileText } from "lucide-react";
 import { toast } from "sonner";
 import { downloadBookingReceipt } from "@/lib/receipt";
+import { BookingsList } from "@/components/dashboard/BookingsList";
 
 type Booking = {
   id: string;
@@ -420,7 +421,7 @@ const Dashboard = () => {
             <Link to="/kursus">Lihat semua kursus →</Link>
           </Button>
         </div>
-        <div className="mt-4 space-y-3">
+        <div className="mt-4">
           {loading ? (
             <Skeleton className="h-28 w-full" />
           ) : courseBookings.length === 0 ? (
@@ -430,9 +431,14 @@ const Dashboard = () => {
               cta={<Button asChild><Link to="/kursus">Layari kursus</Link></Button>}
             />
           ) : (
-            courseBookings.map((b) => (
-              <BookingRow key={b.id} b={b} title={b.course_title ?? "Kursus"} subtitle={b.slot_label} />
-            ))
+            <BookingsList
+              items={courseBookings}
+              getTitle={(b) => b.course_title ?? "Kursus"}
+              getSubtitle={(b) => b.slot_label}
+              renderItem={(b) => (
+                <BookingRow key={b.id} b={b} title={b.course_title ?? "Kursus"} subtitle={b.slot_label} />
+              )}
+            />
           )}
         </div>
       </section>
@@ -444,7 +450,7 @@ const Dashboard = () => {
             <Link to="/sewa-bilik">Lihat bilik →</Link>
           </Button>
         </div>
-        <div className="mt-4 space-y-3">
+        <div className="mt-4">
           {loading ? (
             <Skeleton className="h-28 w-full" />
           ) : roomBookings.length === 0 ? (
@@ -454,13 +460,22 @@ const Dashboard = () => {
               cta={<Button asChild><Link to="/sewa-bilik">Tempah bilik</Link></Button>}
             />
           ) : (
-            roomBookings.map((b) => {
-              const range =
+            <BookingsList
+              items={roomBookings}
+              getTitle={(b) => b.room_name ?? "Bilik"}
+              getSubtitle={(b) =>
                 b.booking_date_from && b.booking_date_to
                   ? `${fmtDate(b.booking_date_from)} – ${fmtDate(b.booking_date_to)}`
-                  : undefined;
-              return <BookingRow key={b.id} b={b} title={b.room_name ?? "Bilik"} subtitle={range} />;
-            })
+                  : undefined
+              }
+              renderItem={(b) => {
+                const range =
+                  b.booking_date_from && b.booking_date_to
+                    ? `${fmtDate(b.booking_date_from)} – ${fmtDate(b.booking_date_to)}`
+                    : undefined;
+                return <BookingRow key={b.id} b={b} title={b.room_name ?? "Bilik"} subtitle={range} />;
+              }}
+            />
           )}
         </div>
       </section>
