@@ -500,7 +500,7 @@ const CourseDetail = () => {
               </div>
 
               <Button type="submit" variant="accent" size="lg" className="w-full" disabled={submitting}>
-                {submitting ? "Memproses..." : "Hantar Tempahan"}
+                {submitting ? "Memproses..." : "Hantar Tempahan & Bayar"}
               </Button>
               <p className="text-center text-xs text-muted-foreground">Tempahan anda hanya akan disahkan selepas bayaran berjaya dibuat melalui Online Payment Gateway kami.</p>
             </form>
