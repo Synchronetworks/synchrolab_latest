@@ -319,7 +319,7 @@ const Rooms = () => {
             </div>
             <div className="md:col-span-2 space-y-2 rounded-lg border border-border bg-secondary/40 px-4 py-3">
               <div>
-                <Label className="text-xs">Kod Promo (pilihan)</Label>
+                <Label className="text-xs">Kod Promo (Jika ada)</Label>
                 <div className="mt-1.5 flex gap-2">
                   <Input
                     value={promoInput}
