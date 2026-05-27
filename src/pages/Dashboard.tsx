@@ -450,7 +450,7 @@ const Dashboard = () => {
             <Link to="/sewa-bilik">Lihat bilik →</Link>
           </Button>
         </div>
-        <div className="mt-4 space-y-3">
+        <div className="mt-4">
           {loading ? (
             <Skeleton className="h-28 w-full" />
           ) : roomBookings.length === 0 ? (
@@ -460,13 +460,22 @@ const Dashboard = () => {
               cta={<Button asChild><Link to="/sewa-bilik">Tempah bilik</Link></Button>}
             />
           ) : (
-            roomBookings.map((b) => {
-              const range =
+            <BookingsList
+              items={roomBookings}
+              getTitle={(b) => b.room_name ?? "Bilik"}
+              getSubtitle={(b) =>
                 b.booking_date_from && b.booking_date_to
                   ? `${fmtDate(b.booking_date_from)} – ${fmtDate(b.booking_date_to)}`
-                  : undefined;
-              return <BookingRow key={b.id} b={b} title={b.room_name ?? "Bilik"} subtitle={range} />;
-            })
+                  : undefined
+              }
+              renderItem={(b) => {
+                const range =
+                  b.booking_date_from && b.booking_date_to
+                    ? `${fmtDate(b.booking_date_from)} – ${fmtDate(b.booking_date_to)}`
+                    : undefined;
+                return <BookingRow key={b.id} b={b} title={b.room_name ?? "Bilik"} subtitle={range} />;
+              }}
+            />
           )}
         </div>
       </section>
