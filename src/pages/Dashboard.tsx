@@ -12,6 +12,7 @@ import { BookOpen, DoorOpen, Calendar, Hash, User, Save, KeyRound, Camera, Link2
 import { toast } from "sonner";
 import { downloadBookingReceipt } from "@/lib/receipt";
 import { BookingsList } from "@/components/dashboard/BookingsList";
+import { BookingQRCode } from "@/components/BookingQRCode";
 
 type Booking = {
   id: string;
@@ -36,6 +37,7 @@ type Booking = {
   course_title?: string;
   slot_label?: string;
   room_name?: string;
+  checked_in_at?: string | null;
 };
 
 const statusColor = (s: string) => {
@@ -565,9 +567,20 @@ const BookingRow = ({
         <p className="font-display text-lg font-bold text-foreground">{fmtMoney(b.total_amount)}</p>
         <p className="text-xs text-muted-foreground">{fmtDate(b.created_at)}</p>
         {b.payment_status === "paid" ? (
-          <Button size="sm" variant="outline" onClick={() => downloadReceipt(b, title, subtitle)}>
-            <FileText className="h-4 w-4" /> Lihat Resit
-          </Button>
+          <div className="flex flex-wrap items-center justify-end gap-2">
+            <Button size="sm" variant="outline" onClick={() => downloadReceipt(b, title, subtitle)}>
+              <FileText className="h-4 w-4" /> Resit
+            </Button>
+            {b.type === "course" && (
+              <BookingQRCode
+                refNo={b.ref_no}
+                customerName={b.customer_name}
+                title={title}
+                subtitle={subtitle}
+                checkedInAt={b.checked_in_at ?? null}
+              />
+            )}
+          </div>
         ) : (
           <PayButton refNo={b.ref_no} email={b.email} payUrl={b.payment_url} />
         )}
