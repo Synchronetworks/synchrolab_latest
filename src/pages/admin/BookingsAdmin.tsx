@@ -103,13 +103,14 @@ const BookingsAdmin = () => {
   const [paymentFilter, setPaymentFilter] = useState<string>("all");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [page, setPage] = useState(1);
+  const [selected, setSelected] = useState<BookingRow | null>(null);
 
   const { data, isLoading } = useQuery({
     queryKey: ["admin", "bookings"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("bookings")
-        .select("*, courses(title), rooms(name)")
+        .select("*, courses(title), rooms(name), course_slots(date_label, time_label)")
         .order("created_at", { ascending: false });
       if (error) throw error;
       return data as unknown as BookingRow[];
