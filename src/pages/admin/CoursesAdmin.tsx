@@ -251,12 +251,28 @@ function CourseForm({ initial, isNew, onClose, onSaved }: { initial: Course; isN
     }
   };
 
+  const computeStatusFromSlots = async (courseId: string): Promise<Course["status"]> => {
+    const { data } = await supabase
+      .from("course_slots")
+      .select("seats_total, seats_taken")
+      .eq("course_id", courseId);
+    const total = (data || []).reduce((s, r: any) => s + (r.seats_total || 0), 0);
+    const taken = (data || []).reduce((s, r: any) => s + (r.seats_taken || 0), 0);
+    if (total === 0) return "Ada Tempat";
+    if (taken >= total) return "Penuh";
+    if (taken / total >= 0.8) return "Hampir Penuh";
+    return "Ada Tempat";
+  };
+
   const save = async () => {
     if (!form.title || !form.slug || !form.short_desc || !form.duration) {
       toast.error("Sila isi semua medan wajib");
       return;
     }
     setSaving(true);
+    const autoStatus: Course["status"] = isNew
+      ? "Ada Tempat"
+      : await computeStatusFromSlots(form.id);
     const payload = {
       slug: form.slug,
       title: form.title,
@@ -267,7 +283,7 @@ function CourseForm({ initial, isNew, onClose, onSaved }: { initial: Course; isN
       early_bird_price: form.early_bird_price,
       early_bird_until: form.early_bird_until,
       sibling_price: form.sibling_price,
-      status: form.status,
+      status: autoStatus,
       short_desc: form.short_desc,
       syllabus: syllabusText.split("\n").map((s) => s.trim()).filter(Boolean),
       prerequisites: form.prerequisites || null,
@@ -354,7 +370,7 @@ function CourseForm({ initial, isNew, onClose, onSaved }: { initial: Course; isN
             <Textarea rows={2} value={form.short_desc} onChange={(e) => setForm({ ...form, short_desc: e.target.value })} />
           </div>
 
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-2 gap-3">
             <div>
               <Label>Kategori *</Label>
               <select className="mt-1 flex h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
@@ -380,15 +396,6 @@ function CourseForm({ initial, isNew, onClose, onSaved }: { initial: Course; isN
                   setForm({ ...form, duration: n ? `${n} hari` : "" });
                 }}
               />
-            </div>
-            <div>
-              <Label>Status</Label>
-              <select className="mt-1 flex h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
-                value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value as Course["status"] })}>
-                <option>Ada Tempat</option>
-                <option>Hampir Penuh</option>
-                <option>Penuh</option>
-              </select>
             </div>
           </div>
 
@@ -539,6 +546,23 @@ function SlotsManager({ course, onClose }: { course: Course; onClose: () => void
     },
   });
 
+  const recomputeCourseStatus = async () => {
+    const { data } = await supabase
+      .from("course_slots")
+      .select("seats_total, seats_taken")
+      .eq("course_id", course.id);
+    const total = (data || []).reduce((s, r: any) => s + (r.seats_total || 0), 0);
+    const taken = (data || []).reduce((s, r: any) => s + (r.seats_taken || 0), 0);
+    let status: "Ada Tempat" | "Hampir Penuh" | "Penuh" = "Ada Tempat";
+    if (total > 0) {
+      if (taken >= total) status = "Penuh";
+      else if (taken / total >= 0.8) status = "Hampir Penuh";
+    }
+    await supabase.from("courses").update({ status }).eq("id", course.id);
+    qc.invalidateQueries({ queryKey: ["admin-courses"] });
+    qc.invalidateQueries({ queryKey: ["courses"] });
+  };
+
   const addSlot = async () => {
     if (!newSlot.date_label || !newSlot.time_label) {
       toast.error("Sila isi tarikh dan masa");
@@ -561,6 +585,7 @@ function SlotsManager({ course, onClose }: { course: Course; onClose: () => void
       setStartTime("");
       setEndTime("");
       qc.invalidateQueries({ queryKey: ["admin-slots", course.id] });
+      await recomputeCourseStatus();
     }
   };
 
@@ -570,6 +595,7 @@ function SlotsManager({ course, onClose }: { course: Course; onClose: () => void
     else {
       toast.success("Slot dipadam");
       qc.invalidateQueries({ queryKey: ["admin-slots", course.id] });
+      await recomputeCourseStatus();
     }
   };
 
