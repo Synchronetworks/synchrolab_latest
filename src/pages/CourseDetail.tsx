@@ -233,7 +233,14 @@ const CourseDetail = () => {
           </Link>
           <div className="mt-6 grid items-center gap-10 lg:grid-cols-[1fr_420px]">
             <div>
-              <Badge className="bg-accent text-accent-foreground hover:bg-accent">{course.category}</Badge>
+              <div className="flex flex-wrap items-center gap-2">
+                <Badge className="bg-accent text-accent-foreground hover:bg-accent">{course.category}</Badge>
+                {course.hrdc_claimable && (
+                  <Badge className="bg-emerald-500 text-white hover:bg-emerald-500">
+                    <Award className="mr-1 h-3 w-3" /> HRD Corp Claimable
+                  </Badge>
+                )}
+              </div>
               <h1 className="mt-4 font-display text-3xl font-extrabold text-white md:text-4xl lg:text-5xl">
                 {course.title}
               </h1>
