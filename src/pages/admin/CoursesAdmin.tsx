@@ -44,6 +44,7 @@ type Course = {
   image_url: string | null;
   is_active: boolean;
   is_featured: boolean;
+  hrdc_claimable: boolean;
 };
 
 type Slot = {
