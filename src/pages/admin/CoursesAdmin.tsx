@@ -354,7 +354,7 @@ function CourseForm({ initial, isNew, onClose, onSaved }: { initial: Course; isN
             <Textarea rows={2} value={form.short_desc} onChange={(e) => setForm({ ...form, short_desc: e.target.value })} />
           </div>
 
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-2 gap-3">
             <div>
               <Label>Kategori *</Label>
               <select className="mt-1 flex h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
