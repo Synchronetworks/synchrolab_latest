@@ -93,7 +93,7 @@ const CourseDetail = () => {
 
   const pricing = useMemo(() => {
     if (!course) return null;
-    const eb = computeEffectivePrice(course, form.num_pax);
+    const eb = computeEffectivePrice(course, form.num_pax, isSibling);
     let unit = eb.unit;
     let kind: "regular" | "early_bird" | "sibling" | "group" = eb.kind;
     let label = eb.label;
@@ -103,7 +103,7 @@ const CourseDetail = () => {
       label = "Harga Kumpulan (5+ peserta)";
     }
     return { unit, kind, label, original: course.price };
-  }, [course, form.num_pax]);
+  }, [course, form.num_pax, isSibling]);
 
   const total = (pricing?.unit ?? 0) * form.num_pax;
 
