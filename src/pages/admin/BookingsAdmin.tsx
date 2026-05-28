@@ -1,7 +1,18 @@
+import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
+import { ChevronLeft, ChevronRight, Search } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Table,
   TableBody,
@@ -27,7 +38,15 @@ type BookingRow = {
   rooms: { name: string } | null;
 };
 
+const PAGE_SIZE = 20;
+
 const BookingsAdmin = () => {
+  const [search, setSearch] = useState("");
+  const [typeFilter, setTypeFilter] = useState<string>("all");
+  const [paymentFilter, setPaymentFilter] = useState<string>("all");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [page, setPage] = useState(1);
+
   const { data, isLoading } = useQuery({
     queryKey: ["admin", "bookings"],
     queryFn: async () => {
@@ -40,6 +59,31 @@ const BookingsAdmin = () => {
     },
   });
 
+  const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    return (data ?? []).filter((b) => {
+      if (typeFilter !== "all" && b.type !== typeFilter) return false;
+      if (paymentFilter !== "all" && b.payment_status !== paymentFilter) return false;
+      if (statusFilter !== "all" && b.booking_status !== statusFilter) return false;
+      if (!q) return true;
+      const item = b.courses?.title ?? b.rooms?.name ?? "";
+      return (
+        b.ref_no.toLowerCase().includes(q) ||
+        b.customer_name.toLowerCase().includes(q) ||
+        b.email.toLowerCase().includes(q) ||
+        (b.phone ?? "").toLowerCase().includes(q) ||
+        item.toLowerCase().includes(q)
+      );
+    });
+  }, [data, search, typeFilter, paymentFilter, statusFilter]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const currentPage = Math.min(page, totalPages);
+  const start = (currentPage - 1) * PAGE_SIZE;
+  const pageRows = filtered.slice(start, start + PAGE_SIZE);
+
+  const resetPage = () => setPage(1);
+
   return (
     <div className="space-y-6">
       <div>
@@ -47,6 +91,44 @@ const BookingsAdmin = () => {
         <p className="mt-1 text-sm text-muted-foreground">
           Senarai tempahan kursus & sewa bilik.
         </p>
+      </div>
+
+      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+        <div className="relative sm:flex-1 sm:min-w-[240px]">
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            placeholder="Cari rujukan, nama, emel, telefon, item..."
+            value={search}
+            onChange={(e) => { setSearch(e.target.value); resetPage(); }}
+            className="pl-9"
+          />
+        </div>
+        <Select value={typeFilter} onValueChange={(v) => { setTypeFilter(v); resetPage(); }}>
+          <SelectTrigger className="sm:w-[140px]"><SelectValue placeholder="Jenis" /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Semua jenis</SelectItem>
+            <SelectItem value="course">Kursus</SelectItem>
+            <SelectItem value="room">Bilik</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select value={paymentFilter} onValueChange={(v) => { setPaymentFilter(v); resetPage(); }}>
+          <SelectTrigger className="sm:w-[160px]"><SelectValue placeholder="Bayaran" /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Semua bayaran</SelectItem>
+            <SelectItem value="paid">Dibayar</SelectItem>
+            <SelectItem value="unpaid">Belum Bayar</SelectItem>
+            <SelectItem value="refunded">Dipulang</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select value={statusFilter} onValueChange={(v) => { setStatusFilter(v); resetPage(); }}>
+          <SelectTrigger className="sm:w-[160px]"><SelectValue placeholder="Status" /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Semua status</SelectItem>
+            <SelectItem value="pending">Menunggu</SelectItem>
+            <SelectItem value="confirmed">Disahkan</SelectItem>
+            <SelectItem value="cancelled">Dibatal</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       <div className="rounded-2xl border border-border bg-card shadow-soft">
@@ -70,12 +152,12 @@ const BookingsAdmin = () => {
                 <TableCell colSpan={9} className="text-center text-muted-foreground">Memuatkan...</TableCell>
               </TableRow>
             )}
-            {data?.length === 0 && (
+            {!isLoading && pageRows.length === 0 && (
               <TableRow>
                 <TableCell colSpan={9} className="text-center text-muted-foreground">Tiada tempahan.</TableCell>
               </TableRow>
             )}
-            {data?.map((b) => (
+            {pageRows.map((b) => (
               <TableRow key={b.id}>
                 <TableCell className="text-sm text-muted-foreground">{format(new Date(b.created_at), "dd MMM yyyy")}</TableCell>
                 <TableCell className="font-mono text-xs">{b.ref_no}</TableCell>
@@ -101,6 +183,35 @@ const BookingsAdmin = () => {
             ))}
           </TableBody>
         </Table>
+      </div>
+
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="text-sm text-muted-foreground">
+          {filtered.length === 0
+            ? "0 tempahan"
+            : `Menunjukkan ${start + 1}–${Math.min(start + PAGE_SIZE, filtered.length)} daripada ${filtered.length}`}
+        </div>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+            disabled={currentPage <= 1}
+          >
+            <ChevronLeft className="h-4 w-4" /> Sebelum
+          </Button>
+          <span className="text-sm text-muted-foreground">
+            Halaman {currentPage} / {totalPages}
+          </span>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+            disabled={currentPage >= totalPages}
+          >
+            Seterusnya <ChevronRight className="h-4 w-4" />
+          </Button>
+        </div>
       </div>
     </div>
   );
