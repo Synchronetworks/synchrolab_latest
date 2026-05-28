@@ -478,6 +478,10 @@ function CourseForm({ initial, isNew, onClose, onSaved }: { initial: Course; isN
               <input type="checkbox" checked={form.is_featured} onChange={(e) => setForm({ ...form, is_featured: e.target.checked })} />
               Highlight di "Kursus popular bulan ini"
             </label>
+            <label className="flex items-center gap-2 text-sm">
+              <input type="checkbox" checked={form.hrdc_claimable} onChange={(e) => setForm({ ...form, hrdc_claimable: e.target.checked })} />
+              HRD Corp claimable
+            </label>
           </div>
         </div>
 
