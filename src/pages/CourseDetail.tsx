@@ -482,6 +482,22 @@ const CourseDetail = () => {
                   </div>
                 </div>
               )}
+
+              {course.sibling_price != null && form.num_pax >= 2 && (
+                <label className="flex cursor-pointer items-start gap-2 rounded-lg border border-emerald-300/60 bg-emerald-50 px-3 py-2.5">
+                  <Checkbox
+                    checked={isSibling}
+                    onCheckedChange={(c) => setIsSibling(c === true)}
+                    className="mt-0.5"
+                  />
+                  <span className="text-xs text-emerald-900">
+                    <span className="font-semibold">Peserta adalah adik beradik</span>
+                    <span className="block text-emerald-700">
+                      Tanda jika semua peserta adalah adik beradik untuk nikmati harga RM{course.sibling_price.toLocaleString()}/peserta.
+                    </span>
+                  </span>
+                </label>
+              )}
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <div>
                   <Label>E-mel *</Label>
