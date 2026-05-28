@@ -34,8 +34,52 @@ type BookingRow = {
   payment_status: "unpaid" | "paid" | "refunded";
   booking_status: "pending" | "confirmed" | "cancelled";
   created_at: string;
+  checked_in_at: string | null;
+  booking_date_from: string | null;
+  booking_date_to: string | null;
   courses: { title: string } | null;
   rooms: { name: string } | null;
+};
+
+const paymentBadgeClass = (s: BookingRow["payment_status"]) => {
+  switch (s) {
+    case "paid":
+      return "border-transparent bg-emerald-100 text-emerald-700 hover:bg-emerald-100";
+    case "refunded":
+      return "border-transparent bg-amber-100 text-amber-800 hover:bg-amber-100";
+    default:
+      return "border-transparent bg-rose-100 text-rose-700 hover:bg-rose-100";
+  }
+};
+
+const statusBadgeClass = (variant: "attended" | "absent" | "confirmed" | "cancelled" | "pending") => {
+  switch (variant) {
+    case "attended":
+      return "border-transparent bg-emerald-100 text-emerald-700 hover:bg-emerald-100";
+    case "absent":
+      return "border-transparent bg-rose-100 text-rose-700 hover:bg-rose-100";
+    case "confirmed":
+      return "border-transparent bg-sky-100 text-sky-700 hover:bg-sky-100";
+    case "cancelled":
+      return "border-transparent bg-slate-200 text-slate-700 hover:bg-slate-200";
+    default:
+      return "border-transparent bg-amber-100 text-amber-800 hover:bg-amber-100";
+  }
+};
+
+const resolveStatus = (b: BookingRow) => {
+  if (b.checked_in_at) return { variant: "attended" as const, label: "Telah Hadir" };
+  if (b.booking_status === "cancelled") return { variant: "cancelled" as const, label: "Dibatal" };
+  const endDateStr = b.booking_date_to ?? b.booking_date_from;
+  if (endDateStr && b.payment_status === "paid") {
+    const end = new Date(endDateStr);
+    end.setHours(23, 59, 59, 999);
+    if (end.getTime() < Date.now()) {
+      return { variant: "absent" as const, label: "Tidak Hadir" };
+    }
+  }
+  if (b.booking_status === "confirmed") return { variant: "confirmed" as const, label: "Disahkan" };
+  return { variant: "pending" as const, label: "Menunggu" };
 };
 
 const PAGE_SIZE = 20;
