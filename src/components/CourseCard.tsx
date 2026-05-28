@@ -29,6 +29,11 @@ export const CourseCard = ({ course }: { course: CourseRow }) => {
         <span className={cn("absolute right-3 top-3 inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11px] font-medium backdrop-blur-sm", statusStyle)}>
           {course.status}
         </span>
+        {isEarlyBirdActive(course) && (
+          <span className="absolute left-3 top-3 inline-flex items-center gap-1 rounded-full border border-amber-300/60 bg-amber-100/90 px-2.5 py-0.5 text-[11px] font-semibold text-amber-800 backdrop-blur-sm">
+            <Sparkles className="h-3 w-3" /> Early Bird
+          </span>
+        )}
       </div>
 
       <div className="flex flex-1 flex-col p-6">
