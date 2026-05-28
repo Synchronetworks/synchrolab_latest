@@ -76,6 +76,7 @@ const empty: Omit<Course, "id"> = {
   image_url: "",
   is_active: true,
   is_featured: false,
+  hrdc_claimable: false,
 };
 
 export default function CoursesAdmin() {
