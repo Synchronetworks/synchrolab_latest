@@ -769,6 +769,7 @@ export type Database = {
           _course_id?: string
           _customer_name: string
           _email: string
+          _is_sibling?: boolean
           _notes?: string
           _num_pax: number
           _phone: string

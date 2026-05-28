@@ -33,6 +33,7 @@ const CourseDetail = () => {
   const [success, setSuccess] = useState<string | null>(null);
   const [form, setForm] = useState({ customer_name: "", customer_age: "", email: "", phone: "", company: "", num_pax: 1, notes: "" });
   const [isParticipant, setIsParticipant] = useState(true);
+  const [isSibling, setIsSibling] = useState(false);
   const [participants, setParticipants] = useState<{ name: string; age: string }[]>([]);
   const [lockedEmail, setLockedEmail] = useState(false);
   const [lockedPhone, setLockedPhone] = useState(false);
@@ -92,7 +93,7 @@ const CourseDetail = () => {
 
   const pricing = useMemo(() => {
     if (!course) return null;
-    const eb = computeEffectivePrice(course, form.num_pax);
+    const eb = computeEffectivePrice(course, form.num_pax, isSibling);
     let unit = eb.unit;
     let kind: "regular" | "early_bird" | "sibling" | "group" = eb.kind;
     let label = eb.label;
@@ -102,7 +103,7 @@ const CourseDetail = () => {
       label = "Harga Kumpulan (5+ peserta)";
     }
     return { unit, kind, label, original: course.price };
-  }, [course, form.num_pax]);
+  }, [course, form.num_pax, isSibling]);
 
   const total = (pricing?.unit ?? 0) * form.num_pax;
 
@@ -198,6 +199,7 @@ const CourseDetail = () => {
       _company: parsed.data.company || null,
       _notes: notes,
       _promo_code: promo?.code ?? null,
+      _is_sibling: isSibling && parsed.data.num_pax >= 2,
     });
     if (insertErr || !refNo) {
       setSubmitting(false);
@@ -479,6 +481,22 @@ const CourseDetail = () => {
                     })}
                   </div>
                 </div>
+              )}
+
+              {course.sibling_price != null && form.num_pax >= 2 && (
+                <label className="flex cursor-pointer items-start gap-2 rounded-lg border border-emerald-300/60 bg-emerald-50 px-3 py-2.5">
+                  <Checkbox
+                    checked={isSibling}
+                    onCheckedChange={(c) => setIsSibling(c === true)}
+                    className="mt-0.5"
+                  />
+                  <span className="text-xs text-emerald-900">
+                    <span className="font-semibold">Peserta adalah adik beradik</span>
+                    <span className="block text-emerald-700">
+                      Tanda jika semua peserta adalah adik beradik untuk nikmati harga RM{course.sibling_price.toLocaleString()}/peserta.
+                    </span>
+                  </span>
+                </label>
               )}
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <div>

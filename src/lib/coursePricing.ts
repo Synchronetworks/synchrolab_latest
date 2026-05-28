@@ -31,6 +31,7 @@ export const computeEffectivePrice = (
     "price" | "early_bird_price" | "early_bird_until" | "sibling_price"
   >,
   numPax: number,
+  isSibling: boolean = false,
 ): EffectivePrice => {
   let unit = course.price;
   let kind: PriceKind = "regular";
@@ -42,7 +43,7 @@ export const computeEffectivePrice = (
     kind = "early_bird";
     label = "Harga Early Bird";
   }
-  const sibActive = numPax >= 2 && course.sibling_price != null;
+  const sibActive = isSibling && numPax >= 2 && course.sibling_price != null;
   if (sibActive && course.sibling_price! < unit) {
     unit = course.sibling_price!;
     kind = "sibling";
