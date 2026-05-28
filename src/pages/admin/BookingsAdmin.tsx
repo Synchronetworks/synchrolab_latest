@@ -214,14 +214,15 @@ const BookingsAdmin = () => {
                 <TableCell>{b.num_pax}</TableCell>
                 <TableCell className="font-medium">RM {Number(b.total_amount).toFixed(2)}</TableCell>
                 <TableCell>
-                  <Badge variant={b.payment_status === "paid" ? "default" : "secondary"}>
+                  <Badge className={paymentBadgeClass(b.payment_status)}>
                     {b.payment_status === "paid" ? "Dibayar" : b.payment_status === "refunded" ? "Dipulang" : "Belum Bayar"}
                   </Badge>
                 </TableCell>
                 <TableCell>
-                  <Badge variant={b.booking_status === "confirmed" ? "default" : b.booking_status === "cancelled" ? "outline" : "secondary"}>
-                    {b.booking_status === "confirmed" ? "Disahkan" : b.booking_status === "cancelled" ? "Dibatal" : "Menunggu"}
-                  </Badge>
+                  {(() => {
+                    const s = resolveStatus(b);
+                    return <Badge className={statusBadgeClass(s.variant)}>{s.label}</Badge>;
+                  })()}
                 </TableCell>
               </TableRow>
             ))}
