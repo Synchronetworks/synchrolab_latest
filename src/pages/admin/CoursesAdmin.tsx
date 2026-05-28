@@ -546,6 +546,23 @@ function SlotsManager({ course, onClose }: { course: Course; onClose: () => void
     },
   });
 
+  const recomputeCourseStatus = async () => {
+    const { data } = await supabase
+      .from("course_slots")
+      .select("seats_total, seats_taken")
+      .eq("course_id", course.id);
+    const total = (data || []).reduce((s, r: any) => s + (r.seats_total || 0), 0);
+    const taken = (data || []).reduce((s, r: any) => s + (r.seats_taken || 0), 0);
+    let status: "Ada Tempat" | "Hampir Penuh" | "Penuh" = "Ada Tempat";
+    if (total > 0) {
+      if (taken >= total) status = "Penuh";
+      else if (taken / total >= 0.8) status = "Hampir Penuh";
+    }
+    await supabase.from("courses").update({ status }).eq("id", course.id);
+    qc.invalidateQueries({ queryKey: ["admin-courses"] });
+    qc.invalidateQueries({ queryKey: ["courses"] });
+  };
+
   const addSlot = async () => {
     if (!newSlot.date_label || !newSlot.time_label) {
       toast.error("Sila isi tarikh dan masa");
@@ -568,6 +585,7 @@ function SlotsManager({ course, onClose }: { course: Course; onClose: () => void
       setStartTime("");
       setEndTime("");
       qc.invalidateQueries({ queryKey: ["admin-slots", course.id] });
+      await recomputeCourseStatus();
     }
   };
 
@@ -577,6 +595,7 @@ function SlotsManager({ course, onClose }: { course: Course; onClose: () => void
     else {
       toast.success("Slot dipadam");
       qc.invalidateQueries({ queryKey: ["admin-slots", course.id] });
+      await recomputeCourseStatus();
     }
   };
 
