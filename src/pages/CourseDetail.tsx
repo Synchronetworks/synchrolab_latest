@@ -326,11 +326,38 @@ const CourseDetail = () => {
                 RM{course.price.toLocaleString()}
                 <span className="text-sm font-normal text-muted-foreground"> /peserta</span>
               </p>
-              {course.group_price && (
-                <p className="mt-1 text-sm text-success">
-                  RM{course.group_price.toLocaleString()}/pax untuk kumpulan 5+ peserta
-                </p>
-              )}
+
+              <div className="mt-4 space-y-2">
+                {isEarlyBirdActive(course) && course.early_bird_price != null && (
+                  <div className="rounded-lg border border-amber-300/60 bg-amber-50 px-3 py-2">
+                    <p className="text-[11px] font-semibold uppercase tracking-wider text-amber-700">⚡ Early Bird</p>
+                    <p className="text-sm font-semibold text-amber-900">
+                      RM{course.early_bird_price.toLocaleString()}/peserta
+                    </p>
+                    <p className="text-xs text-amber-700">
+                      Sah sehingga {new Date(course.early_bird_until!).toLocaleDateString("ms-MY", { day: "numeric", month: "short", year: "numeric" })}
+                    </p>
+                  </div>
+                )}
+                {course.sibling_price != null && (
+                  <div className="rounded-lg border border-emerald-300/60 bg-emerald-50 px-3 py-2">
+                    <p className="text-[11px] font-semibold uppercase tracking-wider text-emerald-700">👥 Adik Beradik</p>
+                    <p className="text-sm font-semibold text-emerald-900">
+                      RM{course.sibling_price.toLocaleString()}/peserta
+                    </p>
+                    <p className="text-xs text-emerald-700">Untuk tempahan 2 peserta atau lebih</p>
+                  </div>
+                )}
+                {course.group_price != null && (
+                  <div className="rounded-lg border border-sky-300/60 bg-sky-50 px-3 py-2">
+                    <p className="text-[11px] font-semibold uppercase tracking-wider text-sky-700">🎓 Kumpulan</p>
+                    <p className="text-sm font-semibold text-sky-900">
+                      RM{course.group_price.toLocaleString()}/peserta
+                    </p>
+                    <p className="text-xs text-sky-700">Untuk kumpulan 5 peserta atau lebih</p>
+                  </div>
+                )}
+              </div>
 
               <Button
                 variant="accent"
