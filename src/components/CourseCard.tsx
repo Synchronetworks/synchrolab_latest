@@ -1,8 +1,9 @@
 import { Link } from "react-router-dom";
-import { Clock, Users, ArrowRight } from "lucide-react";
+import { Clock, Users, ArrowRight, Sparkles } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import type { CourseRow } from "@/hooks/useCatalog";
+import { isEarlyBirdActive } from "@/lib/coursePricing";
 
 export const CourseCard = ({ course }: { course: CourseRow }) => {
   const statusStyle = {
