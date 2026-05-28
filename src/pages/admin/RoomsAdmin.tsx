@@ -17,6 +17,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { toast } from "sonner";
 import { uploadCatalogImage, slugify } from "@/lib/uploadImage";
 
+type SeatingLayout = { name: string; capacity: number };
+
 type Room = {
   id: string;
   slug: string;
@@ -28,7 +30,10 @@ type Room = {
   description: string | null;
   image_url: string | null;
   is_active: boolean;
+  seating_layouts: SeatingLayout[];
 };
+
+const DEFAULT_LAYOUTS = ["Theater", "Classroom", "U-Shape", "Boardroom", "Banquet", "Cluster"];
 
 const empty: Omit<Room, "id"> = {
   slug: "",
@@ -40,6 +45,7 @@ const empty: Omit<Room, "id"> = {
   description: "",
   image_url: "",
   is_active: true,
+  seating_layouts: [],
 };
 
 export default function RoomsAdmin() {
