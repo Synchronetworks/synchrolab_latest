@@ -377,7 +377,9 @@ const CourseDetail = () => {
               <ul className="mt-6 space-y-2 border-t border-border pt-4 text-xs text-muted-foreground">
                 <li className="flex items-center gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-success" /> Bayaran selamat (FPX, kad)</li>
                 <li className="flex items-center gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-success" /> Resit & invoice automatik</li>
-                <li className="flex items-center gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-success" /> HRD Corp claimable</li>
+                {course.hrdc_claimable && (
+                  <li className="flex items-center gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-success" /> HRD Corp claimable</li>
+                )}
               </ul>
             </div>
           </aside>
