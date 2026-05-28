@@ -199,6 +199,7 @@ const CourseDetail = () => {
       _company: parsed.data.company || null,
       _notes: notes,
       _promo_code: promo?.code ?? null,
+      _is_sibling: isSibling && parsed.data.num_pax >= 2,
     });
     if (insertErr || !refNo) {
       setSubmitting(false);
