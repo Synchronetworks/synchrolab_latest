@@ -17,6 +17,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { toast } from "sonner";
 import { uploadCatalogImage, slugify } from "@/lib/uploadImage";
 
+type SeatingLayout = { name: string; capacity: number };
+
 type Room = {
   id: string;
   slug: string;
@@ -28,7 +30,10 @@ type Room = {
   description: string | null;
   image_url: string | null;
   is_active: boolean;
+  seating_layouts: SeatingLayout[];
 };
+
+const DEFAULT_LAYOUTS = ["Theater", "Classroom", "U-Shape", "Boardroom", "Banquet", "Cluster"];
 
 const empty: Omit<Room, "id"> = {
   slug: "",
@@ -40,6 +45,7 @@ const empty: Omit<Room, "id"> = {
   description: "",
   image_url: "",
   is_active: true,
+  seating_layouts: [],
 };
 
 export default function RoomsAdmin() {
@@ -56,7 +62,11 @@ export default function RoomsAdmin() {
         .select("*")
         .order("created_at", { ascending: false });
       if (error) throw error;
-      return data as Room[];
+      return (data ?? []).map((r: any) => ({
+        ...r,
+        facilities: Array.isArray(r.facilities) ? r.facilities : [],
+        seating_layouts: Array.isArray(r.seating_layouts) ? r.seating_layouts : [],
+      })) as Room[];
     },
   });
 
@@ -203,6 +213,9 @@ function RoomForm({ initial, isNew, onClose, onSaved }: { initial: Room; isNew: 
       description: form.description || null,
       image_url: form.image_url || null,
       is_active: form.is_active,
+      seating_layouts: form.seating_layouts
+        .filter((s) => s.name.trim() && s.capacity > 0)
+        .map((s) => ({ name: s.name.trim(), capacity: s.capacity })),
     };
     const { error } = isNew
       ? await supabase.from("rooms").insert(payload)
@@ -296,6 +309,78 @@ function RoomForm({ initial, isNew, onClose, onSaved }: { initial: Room; isNew: 
             <Label>Fasiliti (satu baris satu item)</Label>
             <Textarea rows={5} value={facilitiesText} onChange={(e) => setFacilitiesText(e.target.value)}
               placeholder="WiFi laju&#10;Projektor 4K&#10;Aircond&#10;Whiteboard" />
+          </div>
+
+          <div className="rounded-lg border border-border bg-muted/30 p-3">
+            <div className="mb-2 flex items-center justify-between">
+              <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                Susunan Meja/Kerusi (kapasiti pax)
+              </Label>
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                onClick={() =>
+                  setForm({
+                    ...form,
+                    seating_layouts: [...form.seating_layouts, { name: "", capacity: 0 }],
+                  })
+                }
+              >
+                <Plus className="h-3.5 w-3.5" /> Tambah
+              </Button>
+            </div>
+            <p className="mb-2 text-xs text-muted-foreground">
+              Cadangan: {DEFAULT_LAYOUTS.join(", ")}.
+            </p>
+            <div className="space-y-2">
+              {form.seating_layouts.length === 0 && (
+                <p className="text-xs italic text-muted-foreground">Belum ada susunan ditetapkan.</p>
+              )}
+              {form.seating_layouts.map((s, idx) => (
+                <div key={idx} className="flex items-center gap-2">
+                  <Input
+                    list="seating-layout-options"
+                    placeholder="cth: Classroom"
+                    value={s.name}
+                    onChange={(e) => {
+                      const next = [...form.seating_layouts];
+                      next[idx] = { ...next[idx], name: e.target.value };
+                      setForm({ ...form, seating_layouts: next });
+                    }}
+                    className="flex-1"
+                  />
+                  <Input
+                    type="number"
+                    min={1}
+                    placeholder="Pax"
+                    value={s.capacity || ""}
+                    onChange={(e) => {
+                      const next = [...form.seating_layouts];
+                      next[idx] = { ...next[idx], capacity: Number(e.target.value) || 0 };
+                      setForm({ ...form, seating_layouts: next });
+                    }}
+                    className="w-24"
+                  />
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="ghost"
+                    onClick={() =>
+                      setForm({
+                        ...form,
+                        seating_layouts: form.seating_layouts.filter((_, i) => i !== idx),
+                      })
+                    }
+                  >
+                    <X className="h-4 w-4 text-destructive" />
+                  </Button>
+                </div>
+              ))}
+              <datalist id="seating-layout-options">
+                {DEFAULT_LAYOUTS.map((n) => <option key={n} value={n} />)}
+              </datalist>
+            </div>
           </div>
 
           <label className="flex items-center gap-2 text-sm">

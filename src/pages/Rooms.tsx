@@ -201,6 +201,25 @@ const Rooms = () => {
                     ))}
                   </ul>
 
+                  {r.seating_layouts.length > 0 && (
+                    <div className="mt-4 rounded-lg border border-accent/20 bg-accent-soft/50 p-3">
+                      <p className="text-[11px] font-semibold uppercase tracking-wider text-accent">
+                        Susunan Meja/Kerusi
+                      </p>
+                      <div className="mt-2 flex flex-wrap gap-1.5">
+                        {r.seating_layouts.map((s) => (
+                          <span
+                            key={s.name}
+                            className="inline-flex items-center gap-1 rounded-full border border-accent/30 bg-card px-2.5 py-0.5 text-xs text-foreground"
+                          >
+                            <span className="font-medium">{s.name}</span>
+                            <span className="text-muted-foreground">· {s.capacity} pax</span>
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
                   <div className="mt-5 flex items-end justify-between border-t border-border pt-4">
                     <div>
                       <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Per jam / hari</p>
