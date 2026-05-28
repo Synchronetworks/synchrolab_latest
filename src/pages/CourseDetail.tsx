@@ -10,6 +10,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { useCourseBySlug, type SlotRow } from "@/hooks/useCatalog";
+import { computeEffectivePrice, isEarlyBirdActive } from "@/lib/coursePricing";
 import { supabase } from "@/integrations/supabase/client";
 import { z } from "zod";
 
