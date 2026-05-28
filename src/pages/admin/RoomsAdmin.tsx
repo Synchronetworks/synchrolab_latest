@@ -311,6 +311,78 @@ function RoomForm({ initial, isNew, onClose, onSaved }: { initial: Room; isNew: 
               placeholder="WiFi laju&#10;Projektor 4K&#10;Aircond&#10;Whiteboard" />
           </div>
 
+          <div className="rounded-lg border border-border bg-muted/30 p-3">
+            <div className="mb-2 flex items-center justify-between">
+              <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                Susunan Meja/Kerusi (kapasiti pax)
+              </Label>
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                onClick={() =>
+                  setForm({
+                    ...form,
+                    seating_layouts: [...form.seating_layouts, { name: "", capacity: 0 }],
+                  })
+                }
+              >
+                <Plus className="h-3.5 w-3.5" /> Tambah
+              </Button>
+            </div>
+            <p className="mb-2 text-xs text-muted-foreground">
+              Cadangan: {DEFAULT_LAYOUTS.join(", ")}.
+            </p>
+            <div className="space-y-2">
+              {form.seating_layouts.length === 0 && (
+                <p className="text-xs italic text-muted-foreground">Belum ada susunan ditetapkan.</p>
+              )}
+              {form.seating_layouts.map((s, idx) => (
+                <div key={idx} className="flex items-center gap-2">
+                  <Input
+                    list="seating-layout-options"
+                    placeholder="cth: Classroom"
+                    value={s.name}
+                    onChange={(e) => {
+                      const next = [...form.seating_layouts];
+                      next[idx] = { ...next[idx], name: e.target.value };
+                      setForm({ ...form, seating_layouts: next });
+                    }}
+                    className="flex-1"
+                  />
+                  <Input
+                    type="number"
+                    min={1}
+                    placeholder="Pax"
+                    value={s.capacity || ""}
+                    onChange={(e) => {
+                      const next = [...form.seating_layouts];
+                      next[idx] = { ...next[idx], capacity: Number(e.target.value) || 0 };
+                      setForm({ ...form, seating_layouts: next });
+                    }}
+                    className="w-24"
+                  />
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="ghost"
+                    onClick={() =>
+                      setForm({
+                        ...form,
+                        seating_layouts: form.seating_layouts.filter((_, i) => i !== idx),
+                      })
+                    }
+                  >
+                    <X className="h-4 w-4 text-destructive" />
+                  </Button>
+                </div>
+              ))}
+              <datalist id="seating-layout-options">
+                {DEFAULT_LAYOUTS.map((n) => <option key={n} value={n} />)}
+              </datalist>
+            </div>
+          </div>
+
           <label className="flex items-center gap-2 text-sm">
             <input type="checkbox" checked={form.is_active} onChange={(e) => setForm({ ...form, is_active: e.target.checked })} />
             Aktif (paparkan di laman awam)
