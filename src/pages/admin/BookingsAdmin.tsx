@@ -218,7 +218,15 @@ const BookingsAdmin = () => {
             {pageRows.map((b) => (
               <TableRow key={b.id}>
                 <TableCell className="text-sm text-muted-foreground">{format(new Date(b.created_at), "dd MMM yyyy")}</TableCell>
-                <TableCell className="font-mono text-xs">{b.ref_no}</TableCell>
+                <TableCell>
+                  <button
+                    type="button"
+                    onClick={() => setSelected(b)}
+                    className="font-mono text-xs text-primary underline-offset-4 hover:underline"
+                  >
+                    {b.ref_no}
+                  </button>
+                </TableCell>
                 <TableCell><Badge variant="outline">{b.type === "course" ? "Kursus" : "Bilik"}</Badge></TableCell>
                 <TableCell>
                   <div className="font-medium">{b.customer_name}</div>
