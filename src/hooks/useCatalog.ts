@@ -10,6 +10,9 @@ export type CourseRow = {
   duration: string;
   price: number;
   group_price: number | null;
+  early_bird_price: number | null;
+  early_bird_until: string | null;
+  sibling_price: number | null;
   status: "Ada Tempat" | "Hampir Penuh" | "Penuh";
   short_desc: string;
   syllabus: string[];
@@ -50,6 +53,9 @@ const mapCourse = (r: any): CourseRow => ({
   duration: r.duration,
   price: Number(r.price),
   group_price: r.group_price !== null ? Number(r.group_price) : null,
+  early_bird_price: r.early_bird_price != null ? Number(r.early_bird_price) : null,
+  early_bird_until: r.early_bird_until ?? null,
+  sibling_price: r.sibling_price != null ? Number(r.sibling_price) : null,
   status: r.status,
   short_desc: r.short_desc,
   syllabus: Array.isArray(r.syllabus) ? r.syllabus : [],

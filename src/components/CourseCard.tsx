@@ -1,8 +1,9 @@
 import { Link } from "react-router-dom";
-import { Clock, Users, ArrowRight } from "lucide-react";
+import { Clock, Users, ArrowRight, Sparkles } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import type { CourseRow } from "@/hooks/useCatalog";
+import { isEarlyBirdActive } from "@/lib/coursePricing";
 
 export const CourseCard = ({ course }: { course: CourseRow }) => {
   const statusStyle = {
@@ -28,6 +29,11 @@ export const CourseCard = ({ course }: { course: CourseRow }) => {
         <span className={cn("absolute right-3 top-3 inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11px] font-medium backdrop-blur-sm", statusStyle)}>
           {course.status}
         </span>
+        {isEarlyBirdActive(course) && (
+          <span className="absolute left-3 top-3 inline-flex items-center gap-1 rounded-full border border-amber-300/60 bg-amber-100/90 px-2.5 py-0.5 text-[11px] font-semibold text-amber-800 backdrop-blur-sm">
+            <Sparkles className="h-3 w-3" /> Early Bird
+          </span>
+        )}
       </div>
 
       <div className="flex flex-1 flex-col p-6">
@@ -57,11 +63,29 @@ export const CourseCard = ({ course }: { course: CourseRow }) => {
 
         <div className="mt-6 flex items-end justify-between border-t border-border pt-4">
           <div>
-            <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Mulai dari</p>
-            <p className="font-display text-2xl font-bold text-primary">
-              RM{course.price.toLocaleString()}
-              <span className="text-xs font-normal text-muted-foreground"> /peserta</span>
-            </p>
+            {(() => {
+              const eb = isEarlyBirdActive(course);
+              const lowest = Math.min(
+                course.price,
+                eb && course.early_bird_price != null ? course.early_bird_price : course.price,
+                course.sibling_price != null ? course.sibling_price : course.price,
+              );
+              const hasOffer = lowest < course.price;
+              return (
+                <>
+                  <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Mulai dari</p>
+                  <p className="font-display text-2xl font-bold text-primary">
+                    RM{lowest.toLocaleString()}
+                    <span className="text-xs font-normal text-muted-foreground"> /peserta</span>
+                  </p>
+                  {hasOffer && (
+                    <p className="mt-0.5 text-xs text-muted-foreground line-through">
+                      RM{course.price.toLocaleString()}
+                    </p>
+                  )}
+                </>
+              );
+            })()}
           </div>
           <span className="inline-flex items-center gap-1 text-sm font-medium text-accent transition-base group-hover:gap-2">
             Butiran <ArrowRight className="h-4 w-4" />

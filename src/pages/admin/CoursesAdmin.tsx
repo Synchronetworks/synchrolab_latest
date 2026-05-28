@@ -32,6 +32,9 @@ type Course = {
   duration: string;
   price: number;
   group_price: number | null;
+  early_bird_price: number | null;
+  early_bird_until: string | null;
+  sibling_price: number | null;
   status: "Ada Tempat" | "Hampir Penuh" | "Penuh";
   short_desc: string;
   syllabus: string[];
@@ -60,6 +63,9 @@ const empty: Omit<Course, "id"> = {
   duration: "",
   price: 0,
   group_price: null,
+  early_bird_price: null,
+  early_bird_until: null,
+  sibling_price: null,
   status: "Ada Tempat",
   short_desc: "",
   syllabus: [],
@@ -258,6 +264,9 @@ function CourseForm({ initial, isNew, onClose, onSaved }: { initial: Course; isN
       duration: form.duration,
       price: form.price,
       group_price: form.group_price,
+      early_bird_price: form.early_bird_price,
+      early_bird_until: form.early_bird_until,
+      sibling_price: form.sibling_price,
       status: form.status,
       short_desc: form.short_desc,
       syllabus: syllabusText.split("\n").map((s) => s.trim()).filter(Boolean),
@@ -391,6 +400,41 @@ function CourseForm({ initial, isNew, onClose, onSaved }: { initial: Course; isN
             <div>
               <Label>Harga kumpulan 5+ (RM)</Label>
               <Input type="number" min={0} value={form.group_price ?? ""} onChange={(e) => setForm({ ...form, group_price: e.target.value ? Number(e.target.value) : null })} />
+            </div>
+          </div>
+
+          <div className="rounded-lg border border-border bg-muted/30 p-3 space-y-3">
+            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Harga Promosi (pilihan)</p>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label>Harga Early Bird (RM)</Label>
+                <Input
+                  type="number"
+                  min={0}
+                  value={form.early_bird_price ?? ""}
+                  onChange={(e) => setForm({ ...form, early_bird_price: e.target.value ? Number(e.target.value) : null })}
+                  placeholder="cth: 199"
+                />
+              </div>
+              <div>
+                <Label>Sah sehingga (tarikh)</Label>
+                <Input
+                  type="date"
+                  value={form.early_bird_until ?? ""}
+                  onChange={(e) => setForm({ ...form, early_bird_until: e.target.value || null })}
+                />
+              </div>
+            </div>
+            <div>
+              <Label>Harga Adik Beradik / 2+ peserta (RM)</Label>
+              <Input
+                type="number"
+                min={0}
+                value={form.sibling_price ?? ""}
+                onChange={(e) => setForm({ ...form, sibling_price: e.target.value ? Number(e.target.value) : null })}
+                placeholder="cth: 249"
+              />
+              <p className="mt-1 text-xs text-muted-foreground">Dikenakan bila tempahan 2 peserta atau lebih.</p>
             </div>
           </div>
 

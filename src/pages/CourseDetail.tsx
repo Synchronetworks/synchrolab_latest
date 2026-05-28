@@ -10,6 +10,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { useCourseBySlug, type SlotRow } from "@/hooks/useCatalog";
+import { computeEffectivePrice, isEarlyBirdActive } from "@/lib/coursePricing";
 import { supabase } from "@/integrations/supabase/client";
 import { z } from "zod";
 
@@ -89,11 +90,21 @@ const CourseDetail = () => {
   const course = data?.course;
   const slots = data?.slots ?? [];
 
-  const total = useMemo(() => {
-    if (!course) return 0;
-    const unit = course.group_price && form.num_pax >= 5 ? course.group_price : course.price;
-    return unit * form.num_pax;
+  const pricing = useMemo(() => {
+    if (!course) return null;
+    const eb = computeEffectivePrice(course, form.num_pax);
+    let unit = eb.unit;
+    let kind: "regular" | "early_bird" | "sibling" | "group" = eb.kind;
+    let label = eb.label;
+    if (course.group_price != null && form.num_pax >= 5 && course.group_price < unit) {
+      unit = course.group_price;
+      kind = "group";
+      label = "Harga Kumpulan (5+ peserta)";
+    }
+    return { unit, kind, label, original: course.price };
   }, [course, form.num_pax]);
+
+  const total = (pricing?.unit ?? 0) * form.num_pax;
 
   const finalTotal = Math.max(0, total - (promo?.discount ?? 0));
 
@@ -315,11 +326,38 @@ const CourseDetail = () => {
                 RM{course.price.toLocaleString()}
                 <span className="text-sm font-normal text-muted-foreground"> /peserta</span>
               </p>
-              {course.group_price && (
-                <p className="mt-1 text-sm text-success">
-                  RM{course.group_price.toLocaleString()}/pax untuk kumpulan 5+ peserta
-                </p>
-              )}
+
+              <div className="mt-4 space-y-2">
+                {isEarlyBirdActive(course) && course.early_bird_price != null && (
+                  <div className="rounded-lg border border-amber-300/60 bg-amber-50 px-3 py-2">
+                    <p className="text-[11px] font-semibold uppercase tracking-wider text-amber-700">⚡ Early Bird</p>
+                    <p className="text-sm font-semibold text-amber-900">
+                      RM{course.early_bird_price.toLocaleString()}/peserta
+                    </p>
+                    <p className="text-xs text-amber-700">
+                      Sah sehingga {new Date(course.early_bird_until!).toLocaleDateString("ms-MY", { day: "numeric", month: "short", year: "numeric" })}
+                    </p>
+                  </div>
+                )}
+                {course.sibling_price != null && (
+                  <div className="rounded-lg border border-emerald-300/60 bg-emerald-50 px-3 py-2">
+                    <p className="text-[11px] font-semibold uppercase tracking-wider text-emerald-700">👥 Adik Beradik</p>
+                    <p className="text-sm font-semibold text-emerald-900">
+                      RM{course.sibling_price.toLocaleString()}/peserta
+                    </p>
+                    <p className="text-xs text-emerald-700">Untuk tempahan 2 peserta atau lebih</p>
+                  </div>
+                )}
+                {course.group_price != null && (
+                  <div className="rounded-lg border border-sky-300/60 bg-sky-50 px-3 py-2">
+                    <p className="text-[11px] font-semibold uppercase tracking-wider text-sky-700">🎓 Kumpulan</p>
+                    <p className="text-sm font-semibold text-sky-900">
+                      RM{course.group_price.toLocaleString()}/peserta
+                    </p>
+                    <p className="text-xs text-sky-700">Untuk kumpulan 5 peserta atau lebih</p>
+                  </div>
+                )}
+              </div>
 
               <Button
                 variant="accent"
@@ -485,8 +523,14 @@ const CourseDetail = () => {
                     )}
                   </div>
                 </div>
+                {pricing && pricing.kind !== "regular" && (
+                  <div className="flex items-center justify-between rounded-lg bg-accent-soft px-3 py-2 text-xs text-accent">
+                    <span className="font-semibold">{pricing.label}</span>
+                    <span>RM{pricing.unit.toFixed(2)}/peserta</span>
+                  </div>
+                )}
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Subjumlah</span>
+                  <span className="text-muted-foreground">Subjumlah ({form.num_pax} × RM{(pricing?.unit ?? 0).toFixed(2)})</span>
                   <span>RM{total.toFixed(2)}</span>
                 </div>
                 {promo && (

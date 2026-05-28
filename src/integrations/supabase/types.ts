@@ -203,6 +203,8 @@ export type Database = {
           certificate: string | null
           created_at: string
           duration: string
+          early_bird_price: number | null
+          early_bird_until: string | null
           facilitator: string | null
           group_price: number | null
           id: string
@@ -212,6 +214,7 @@ export type Database = {
           prerequisites: string | null
           price: number
           short_desc: string
+          sibling_price: number | null
           slug: string
           status: Database["public"]["Enums"]["course_status"]
           syllabus: Json
@@ -223,6 +226,8 @@ export type Database = {
           certificate?: string | null
           created_at?: string
           duration: string
+          early_bird_price?: number | null
+          early_bird_until?: string | null
           facilitator?: string | null
           group_price?: number | null
           id?: string
@@ -232,6 +237,7 @@ export type Database = {
           prerequisites?: string | null
           price: number
           short_desc: string
+          sibling_price?: number | null
           slug: string
           status?: Database["public"]["Enums"]["course_status"]
           syllabus?: Json
@@ -243,6 +249,8 @@ export type Database = {
           certificate?: string | null
           created_at?: string
           duration?: string
+          early_bird_price?: number | null
+          early_bird_until?: string | null
           facilitator?: string | null
           group_price?: number | null
           id?: string
@@ -252,6 +260,7 @@ export type Database = {
           prerequisites?: string | null
           price?: number
           short_desc?: string
+          sibling_price?: number | null
           slug?: string
           status?: Database["public"]["Enums"]["course_status"]
           syllabus?: Json
