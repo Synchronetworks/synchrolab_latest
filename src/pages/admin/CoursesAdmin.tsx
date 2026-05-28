@@ -251,12 +251,28 @@ function CourseForm({ initial, isNew, onClose, onSaved }: { initial: Course; isN
     }
   };
 
+  const computeStatusFromSlots = async (courseId: string): Promise<Course["status"]> => {
+    const { data } = await supabase
+      .from("course_slots")
+      .select("seats_total, seats_taken")
+      .eq("course_id", courseId);
+    const total = (data || []).reduce((s, r: any) => s + (r.seats_total || 0), 0);
+    const taken = (data || []).reduce((s, r: any) => s + (r.seats_taken || 0), 0);
+    if (total === 0) return "Ada Tempat";
+    if (taken >= total) return "Penuh";
+    if (taken / total >= 0.8) return "Hampir Penuh";
+    return "Ada Tempat";
+  };
+
   const save = async () => {
     if (!form.title || !form.slug || !form.short_desc || !form.duration) {
       toast.error("Sila isi semua medan wajib");
       return;
     }
     setSaving(true);
+    const autoStatus: Course["status"] = isNew
+      ? "Ada Tempat"
+      : await computeStatusFromSlots(form.id);
     const payload = {
       slug: form.slug,
       title: form.title,
@@ -267,7 +283,7 @@ function CourseForm({ initial, isNew, onClose, onSaved }: { initial: Course; isN
       early_bird_price: form.early_bird_price,
       early_bird_until: form.early_bird_until,
       sibling_price: form.sibling_price,
-      status: form.status,
+      status: autoStatus,
       short_desc: form.short_desc,
       syllabus: syllabusText.split("\n").map((s) => s.trim()).filter(Boolean),
       prerequisites: form.prerequisites || null,
