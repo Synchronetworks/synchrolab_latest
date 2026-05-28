@@ -381,15 +381,6 @@ function CourseForm({ initial, isNew, onClose, onSaved }: { initial: Course; isN
                 }}
               />
             </div>
-            <div>
-              <Label>Status</Label>
-              <select className="mt-1 flex h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
-                value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value as Course["status"] })}>
-                <option>Ada Tempat</option>
-                <option>Hampir Penuh</option>
-                <option>Penuh</option>
-              </select>
-            </div>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
