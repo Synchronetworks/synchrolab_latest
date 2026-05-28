@@ -213,6 +213,9 @@ function RoomForm({ initial, isNew, onClose, onSaved }: { initial: Room; isNew: 
       description: form.description || null,
       image_url: form.image_url || null,
       is_active: form.is_active,
+      seating_layouts: form.seating_layouts
+        .filter((s) => s.name.trim() && s.capacity > 0)
+        .map((s) => ({ name: s.name.trim(), capacity: s.capacity })),
     };
     const { error } = isNew
       ? await supabase.from("rooms").insert(payload)
