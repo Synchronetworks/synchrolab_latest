@@ -294,6 +294,7 @@ function CourseForm({ initial, isNew, onClose, onSaved }: { initial: Course; isN
       image_url: form.image_url || null,
       is_active: form.is_active,
       is_featured: form.is_featured,
+      hrdc_claimable: form.hrdc_claimable,
     };
     const { error } = isNew
       ? await supabase.from("courses").insert(payload)
