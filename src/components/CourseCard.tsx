@@ -63,11 +63,29 @@ export const CourseCard = ({ course }: { course: CourseRow }) => {
 
         <div className="mt-6 flex items-end justify-between border-t border-border pt-4">
           <div>
-            <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Mulai dari</p>
-            <p className="font-display text-2xl font-bold text-primary">
-              RM{course.price.toLocaleString()}
-              <span className="text-xs font-normal text-muted-foreground"> /peserta</span>
-            </p>
+            {(() => {
+              const eb = isEarlyBirdActive(course);
+              const lowest = Math.min(
+                course.price,
+                eb && course.early_bird_price != null ? course.early_bird_price : course.price,
+                course.sibling_price != null ? course.sibling_price : course.price,
+              );
+              const hasOffer = lowest < course.price;
+              return (
+                <>
+                  <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Mulai dari</p>
+                  <p className="font-display text-2xl font-bold text-primary">
+                    RM{lowest.toLocaleString()}
+                    <span className="text-xs font-normal text-muted-foreground"> /peserta</span>
+                  </p>
+                  {hasOffer && (
+                    <p className="mt-0.5 text-xs text-muted-foreground line-through">
+                      RM{course.price.toLocaleString()}
+                    </p>
+                  )}
+                </>
+              );
+            })()}
           </div>
           <span className="inline-flex items-center gap-1 text-sm font-medium text-accent transition-base group-hover:gap-2">
             Butiran <ArrowRight className="h-4 w-4" />
