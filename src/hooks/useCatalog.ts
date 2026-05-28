@@ -82,6 +82,11 @@ const mapRoom = (r: any): RoomRow => ({
   facilities: Array.isArray(r.facilities) ? r.facilities : [],
   description: r.description,
   image: r.image_url || getRoomImage(r.slug),
+  seating_layouts: Array.isArray(r.seating_layouts)
+    ? r.seating_layouts
+        .filter((s: any) => s && typeof s.name === "string")
+        .map((s: any) => ({ name: String(s.name), capacity: Number(s.capacity) || 0 }))
+    : [],
 });
 
 export const useCourses = () =>
