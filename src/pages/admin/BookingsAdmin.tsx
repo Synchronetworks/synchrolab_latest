@@ -36,8 +36,13 @@ type BookingRow = {
   customer_name: string;
   email: string;
   phone: string;
+  company: string | null;
+  notes: string | null;
   num_pax: number;
+  subtotal_amount: number;
+  discount_amount: number;
   total_amount: number;
+  promo_code: string | null;
   payment_status: "unpaid" | "paid" | "refunded";
   booking_status: "pending" | "confirmed" | "cancelled";
   created_at: string;
@@ -46,6 +51,7 @@ type BookingRow = {
   booking_date_to: string | null;
   courses: { title: string } | null;
   rooms: { name: string } | null;
+  course_slots: { date_label: string; time_label: string } | null;
 };
 
 const paymentBadgeClass = (s: BookingRow["payment_status"]) => {
