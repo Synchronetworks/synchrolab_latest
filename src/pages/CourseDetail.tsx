@@ -423,22 +423,28 @@ const CourseDetail = () => {
                   <Input required type="number" min={1} max={selectedSlot?.seats_left ?? 50} className="mt-1.5" value={form.num_pax} onChange={(e) => setForm({ ...form, num_pax: Number(e.target.value) })} />
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-[1fr_100px]">
-                <div className="col-span-2 sm:col-span-1">
-                  <Label>Nama penuh pendaftar/ penjaga*</Label>
+              <div className={isParticipant ? "grid grid-cols-2 gap-3 sm:grid-cols-[1fr_100px]" : ""}>
+                <div>
+                  <Label>Nama penuh pendaftar/ penjaga *</Label>
                   <Input required className="mt-1.5" value={form.customer_name} onChange={(e) => setForm({ ...form, customer_name: e.target.value })} />
                   <label className="mt-2 flex cursor-pointer items-center gap-2 text-xs text-muted-foreground">
                     <Checkbox
                       checked={isParticipant}
-                      onCheckedChange={(c) => setIsParticipant(c === true)}
+                      onCheckedChange={(c) => {
+                        const next = c === true;
+                        setIsParticipant(next);
+                        if (!next) setForm((f) => ({ ...f, customer_age: "" }));
+                      }}
                     />
                     <span>Nama ini juga adalah peserta</span>
                   </label>
                 </div>
-                <div>
-                  <Label>Umur *</Label>
-                  <Input required type="number" min={1} max={120} className="mt-1.5" value={form.customer_age} onChange={(e) => setForm({ ...form, customer_age: e.target.value })} />
-                </div>
+                {isParticipant && (
+                  <div>
+                    <Label>Umur *</Label>
+                    <Input required type="number" min={1} max={120} className="mt-1.5" value={form.customer_age} onChange={(e) => setForm({ ...form, customer_age: e.target.value })} />
+                  </div>
+                )}
               </div>
 
 
