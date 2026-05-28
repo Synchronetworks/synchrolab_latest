@@ -207,6 +207,7 @@ export type Database = {
           early_bird_until: string | null
           facilitator: string | null
           group_price: number | null
+          hrdc_claimable: boolean
           id: string
           image_url: string | null
           is_active: boolean
@@ -230,6 +231,7 @@ export type Database = {
           early_bird_until?: string | null
           facilitator?: string | null
           group_price?: number | null
+          hrdc_claimable?: boolean
           id?: string
           image_url?: string | null
           is_active?: boolean
@@ -253,6 +255,7 @@ export type Database = {
           early_bird_until?: string | null
           facilitator?: string | null
           group_price?: number | null
+          hrdc_claimable?: boolean
           id?: string
           image_url?: string | null
           is_active?: boolean

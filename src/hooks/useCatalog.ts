@@ -21,6 +21,7 @@ export type CourseRow = {
   certificate: string | null;
   image: string;
   is_featured: boolean;
+  hrdc_claimable: boolean;
 };
 
 export type SlotRow = {
@@ -70,6 +71,7 @@ const mapCourse = (r: any): CourseRow => ({
   certificate: r.certificate,
   image: r.image_url || getCourseImage(r.slug),
   is_featured: !!r.is_featured,
+  hrdc_claimable: !!r.hrdc_claimable,
 });
 
 const mapRoom = (r: any): RoomRow => ({

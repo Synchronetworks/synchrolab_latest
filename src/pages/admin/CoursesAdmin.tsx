@@ -44,6 +44,7 @@ type Course = {
   image_url: string | null;
   is_active: boolean;
   is_featured: boolean;
+  hrdc_claimable: boolean;
 };
 
 type Slot = {
@@ -75,6 +76,7 @@ const empty: Omit<Course, "id"> = {
   image_url: "",
   is_active: true,
   is_featured: false,
+  hrdc_claimable: false,
 };
 
 export default function CoursesAdmin() {
@@ -292,6 +294,7 @@ function CourseForm({ initial, isNew, onClose, onSaved }: { initial: Course; isN
       image_url: form.image_url || null,
       is_active: form.is_active,
       is_featured: form.is_featured,
+      hrdc_claimable: form.hrdc_claimable,
     };
     const { error } = isNew
       ? await supabase.from("courses").insert(payload)
@@ -474,6 +477,10 @@ function CourseForm({ initial, isNew, onClose, onSaved }: { initial: Course; isN
             <label className="flex items-center gap-2 text-sm">
               <input type="checkbox" checked={form.is_featured} onChange={(e) => setForm({ ...form, is_featured: e.target.checked })} />
               Highlight di "Kursus popular bulan ini"
+            </label>
+            <label className="flex items-center gap-2 text-sm">
+              <input type="checkbox" checked={form.hrdc_claimable} onChange={(e) => setForm({ ...form, hrdc_claimable: e.target.checked })} />
+              HRD Corp claimable
             </label>
           </div>
         </div>
