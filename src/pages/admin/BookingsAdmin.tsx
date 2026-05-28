@@ -280,8 +280,99 @@ const BookingsAdmin = () => {
           </Button>
         </div>
       </div>
+
+      <Dialog open={!!selected} onOpenChange={(o) => !o && setSelected(null)}>
+        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+          {selected && (() => {
+            const s = resolveStatus(selected);
+            const item = selected.courses?.title ?? selected.rooms?.name ?? "—";
+            const slot = selected.course_slots
+              ? `${selected.course_slots.date_label} • ${selected.course_slots.time_label}`
+              : null;
+            const fmt = (d: string | null) => (d ? format(new Date(d), "dd MMM yyyy") : null);
+            const dateRange = selected.booking_date_from
+              ? selected.booking_date_to && selected.booking_date_to !== selected.booking_date_from
+                ? `${fmt(selected.booking_date_from)} – ${fmt(selected.booking_date_to)}`
+                : fmt(selected.booking_date_from)
+              : null;
+            return (
+              <>
+                <DialogHeader>
+                  <DialogTitle className="font-mono text-base">{selected.ref_no}</DialogTitle>
+                  <DialogDescription>
+                    {selected.type === "course" ? "Tempahan Kursus" : "Sewa Bilik"} • {format(new Date(selected.created_at), "dd MMM yyyy, h:mm a")}
+                  </DialogDescription>
+                </DialogHeader>
+
+                <div className="flex flex-wrap gap-2">
+                  <Badge className={paymentBadgeClass(selected.payment_status)}>
+                    {selected.payment_status === "paid" ? "Dibayar" : selected.payment_status === "refunded" ? "Dipulang" : "Belum Bayar"}
+                  </Badge>
+                  <Badge className={statusBadgeClass(s.variant)}>{s.label}</Badge>
+                  {selected.checked_in_at && (
+                    <span className="text-xs text-muted-foreground">
+                      Check-in: {format(new Date(selected.checked_in_at), "dd MMM yyyy, h:mm a")}
+                    </span>
+                  )}
+                </div>
+
+                <div className="space-y-3 text-sm">
+                  <Section title="Pelanggan">
+                    <Row label="Nama" value={selected.customer_name} />
+                    <Row label="Emel" value={selected.email} />
+                    <Row label="Telefon" value={selected.phone} />
+                    {selected.company && <Row label="Syarikat" value={selected.company} />}
+                  </Section>
+
+                  <Section title={selected.type === "course" ? "Kursus" : "Bilik"}>
+                    <Row label="Item" value={item} />
+                    {slot && <Row label="Slot" value={slot} />}
+                    {dateRange && <Row label="Tarikh" value={dateRange} />}
+                    <Row label="Pax" value={String(selected.num_pax)} />
+                  </Section>
+
+                  <Section title="Bayaran">
+                    <Row label="Subtotal" value={`RM ${Number(selected.subtotal_amount).toFixed(2)}`} />
+                    {Number(selected.discount_amount) > 0 && (
+                      <Row
+                        label={`Diskaun${selected.promo_code ? ` (${selected.promo_code})` : ""}`}
+                        value={`- RM ${Number(selected.discount_amount).toFixed(2)}`}
+                      />
+                    )}
+                    <Row
+                      label="Jumlah"
+                      value={`RM ${Number(selected.total_amount).toFixed(2)}`}
+                      bold
+                    />
+                  </Section>
+
+                  {selected.notes && (
+                    <Section title="Nota">
+                      <p className="whitespace-pre-wrap text-muted-foreground">{selected.notes}</p>
+                    </Section>
+                  )}
+                </div>
+              </>
+            );
+          })()}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
+
+const Section = ({ title, children }: { title: string; children: React.ReactNode }) => (
+  <div className="rounded-lg border border-border bg-muted/30 p-3">
+    <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">{title}</div>
+    <div className="space-y-1.5">{children}</div>
+  </div>
+);
+
+const Row = ({ label, value, bold }: { label: string; value: string; bold?: boolean }) => (
+  <div className="flex justify-between gap-3">
+    <span className="text-muted-foreground">{label}</span>
+    <span className={bold ? "font-semibold text-foreground" : "text-foreground"}>{value}</span>
+  </div>
+);
 
 export default BookingsAdmin;
