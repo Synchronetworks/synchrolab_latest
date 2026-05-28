@@ -32,6 +32,9 @@ type Course = {
   duration: string;
   price: number;
   group_price: number | null;
+  early_bird_price: number | null;
+  early_bird_until: string | null;
+  sibling_price: number | null;
   status: "Ada Tempat" | "Hampir Penuh" | "Penuh";
   short_desc: string;
   syllabus: string[];
