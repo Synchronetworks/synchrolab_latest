@@ -62,7 +62,11 @@ export default function RoomsAdmin() {
         .select("*")
         .order("created_at", { ascending: false });
       if (error) throw error;
-      return data as Room[];
+      return (data ?? []).map((r: any) => ({
+        ...r,
+        facilities: Array.isArray(r.facilities) ? r.facilities : [],
+        seating_layouts: Array.isArray(r.seating_layouts) ? r.seating_layouts : [],
+      })) as Room[];
     },
   });
 
