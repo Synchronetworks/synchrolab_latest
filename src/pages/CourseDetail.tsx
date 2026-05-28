@@ -89,11 +89,21 @@ const CourseDetail = () => {
   const course = data?.course;
   const slots = data?.slots ?? [];
 
-  const total = useMemo(() => {
-    if (!course) return 0;
-    const unit = course.group_price && form.num_pax >= 5 ? course.group_price : course.price;
-    return unit * form.num_pax;
+  const pricing = useMemo(() => {
+    if (!course) return null;
+    const eb = computeEffectivePrice(course, form.num_pax);
+    let unit = eb.unit;
+    let kind: "regular" | "early_bird" | "sibling" | "group" = eb.kind;
+    let label = eb.label;
+    if (course.group_price != null && form.num_pax >= 5 && course.group_price < unit) {
+      unit = course.group_price;
+      kind = "group";
+      label = "Harga Kumpulan (5+ peserta)";
+    }
+    return { unit, kind, label, original: course.price };
   }, [course, form.num_pax]);
+
+  const total = (pricing?.unit ?? 0) * form.num_pax;
 
   const finalTotal = Math.max(0, total - (promo?.discount ?? 0));
 
