@@ -33,6 +33,11 @@ export type SlotRow = {
   seats_left: number;
 };
 
+export type SeatingLayout = {
+  name: string;
+  capacity: number;
+};
+
 export type RoomRow = {
   id: string;
   slug: string;
@@ -43,6 +48,7 @@ export type RoomRow = {
   facilities: string[];
   description: string | null;
   image: string;
+  seating_layouts: SeatingLayout[];
 };
 
 const mapCourse = (r: any): CourseRow => ({
