@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Mail, MapPin, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,6 +7,17 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { z } from "zod";
+
+const RECAPTCHA_SITE_KEY = "6LeUiAAtAAAAANLykE2AcC3N7jK2FLv5UdjKJQob";
+
+declare global {
+  interface Window {
+    grecaptcha?: {
+      ready: (cb: () => void) => void;
+      execute: (siteKey: string, opts: { action: string }) => Promise<string>;
+    };
+  }
+}
 
 const schema = z.object({
   name: z.string().trim().min(2).max(200),
@@ -19,21 +30,46 @@ const Contact = () => {
   const [form, setForm] = useState({ name: "", email: "", subject: "", message: "" });
   const [submitting, setSubmitting] = useState(false);
 
+  useEffect(() => {
+    if (document.querySelector(`script[src*="recaptcha/api.js"]`)) return;
+    const s = document.createElement("script");
+    s.src = `https://www.google.com/recaptcha/api.js?render=${RECAPTCHA_SITE_KEY}`;
+    s.async = true;
+    s.defer = true;
+    document.head.appendChild(s);
+  }, []);
+
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     const parsed = schema.safeParse(form);
     if (!parsed.success) { toast.error(parsed.error.issues[0].message); return; }
+    if (!window.grecaptcha) { toast.error("reCAPTCHA belum dimuatkan. Sila tunggu sebentar."); return; }
+
     setSubmitting(true);
-    const { error } = await supabase.from("contact_messages").insert({
-      name: parsed.data.name,
-      email: parsed.data.email,
-      subject: parsed.data.subject || null,
-      message: parsed.data.message,
-    });
-    setSubmitting(false);
-    if (error) { toast.error("Gagal hantar mesej", { description: error.message }); return; }
-    setForm({ name: "", email: "", subject: "", message: "" });
-    toast.success("Mesej dihantar! Kami akan balas dalam 1 hari bekerja.");
+    try {
+      const token = await new Promise<string>((resolve, reject) => {
+        window.grecaptcha!.ready(async () => {
+          try {
+            const t = await window.grecaptcha!.execute(RECAPTCHA_SITE_KEY, { action: "contact" });
+            resolve(t);
+          } catch (err) { reject(err); }
+        });
+      });
+
+      const { data, error } = await supabase.functions.invoke("submit-contact", {
+        body: { ...parsed.data, recaptchaToken: token },
+      });
+      if (error || (data as any)?.error) {
+        toast.error("Gagal hantar mesej", { description: (data as any)?.error || error?.message });
+        return;
+      }
+      setForm({ name: "", email: "", subject: "", message: "" });
+      toast.success("Mesej dihantar! Kami akan balas dalam 1 hari bekerja.");
+    } catch (err: any) {
+      toast.error("Gagal hantar mesej", { description: err?.message });
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -72,6 +108,9 @@ const Contact = () => {
             </div>
             <div><Label>Subjek</Label><Input className="mt-1.5" value={form.subject} onChange={(e) => setForm({ ...form, subject: e.target.value })} /></div>
             <div><Label>Mesej</Label><Textarea required rows={5} className="mt-1.5" value={form.message} onChange={(e) => setForm({ ...form, message: e.target.value })} /></div>
+            <p className="text-xs text-muted-foreground">
+              Borang ini dilindungi oleh reCAPTCHA. <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer" className="underline">Privasi</a> & <a href="https://policies.google.com/terms" target="_blank" rel="noopener noreferrer" className="underline">Terma</a> Google dikenakan.
+            </p>
             <Button type="submit" variant="accent" size="lg" className="w-full" disabled={submitting}>
               {submitting ? "Menghantar..." : "Hantar Mesej"}
             </Button>
