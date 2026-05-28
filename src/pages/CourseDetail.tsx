@@ -523,8 +523,14 @@ const CourseDetail = () => {
                     )}
                   </div>
                 </div>
+                {pricing && pricing.kind !== "regular" && (
+                  <div className="flex items-center justify-between rounded-lg bg-accent-soft px-3 py-2 text-xs text-accent">
+                    <span className="font-semibold">{pricing.label}</span>
+                    <span>RM{pricing.unit.toFixed(2)}/peserta</span>
+                  </div>
+                )}
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Subjumlah</span>
+                  <span className="text-muted-foreground">Subjumlah ({form.num_pax} × RM{(pricing?.unit ?? 0).toFixed(2)})</span>
                   <span>RM{total.toFixed(2)}</span>
                 </div>
                 {promo && (
