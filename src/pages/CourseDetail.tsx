@@ -33,6 +33,7 @@ const CourseDetail = () => {
   const [success, setSuccess] = useState<string | null>(null);
   const [form, setForm] = useState({ customer_name: "", customer_age: "", email: "", phone: "", company: "", num_pax: 1, notes: "" });
   const [isParticipant, setIsParticipant] = useState(true);
+  const [isSibling, setIsSibling] = useState(false);
   const [participants, setParticipants] = useState<{ name: string; age: string }[]>([]);
   const [lockedEmail, setLockedEmail] = useState(false);
   const [lockedPhone, setLockedPhone] = useState(false);
