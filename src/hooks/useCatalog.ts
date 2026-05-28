@@ -21,6 +21,7 @@ export type CourseRow = {
   certificate: string | null;
   image: string;
   is_featured: boolean;
+  hrdc_claimable: boolean;
 };
 
 export type SlotRow = {
